@@ -116,7 +116,7 @@ public class Client {
         String fileNameExtension = "."+fileNameSelected.substring(fileNameSelected.lastIndexOf(".")+1);
 
         downloadThread = Integer.parseInt(threadComboBox.getSelectedItem().toString());
-        System.out.println(downloadThread);
+//        System.out.println(downloadThread);
 
         try {
             FileDialog fd = new FileDialog(frame, "Save File", FileDialog.SAVE);
