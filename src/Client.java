@@ -134,7 +134,7 @@ public class Client {
                 int fileContentLength = fromServer.readInt();
                 
 //                System.out.println(fileContentLength);
-                long starttime = System.currentTimeMillis();
+                // long starttime = System.currentTimeMillis();
 //                long starttime2 = System.currentTimeMillis();
                 
                 String filePath = fd.getDirectory()+fd.getFile()+
@@ -155,7 +155,7 @@ public class Client {
                                 RandomAccessFile raf = new RandomAccessFile(filePath, "rwd");  //read write synchronized
                                 raf.seek(start);
                                 
-                                byte[] buffer = new byte[end];
+                                byte[] buffer = new byte[1024 * 1024];
                                 int read = 0;
                                 
                                 while((read = bufferedInputStream.read(buffer, 0, buffer.length)) > -1) {

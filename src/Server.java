@@ -26,7 +26,7 @@ import javax.swing.table.TableColumn;
 public class Server {
     static ArrayList<GeneralFile> myFiles = new ArrayList<>();
     private int clientNo = 0;
-    private final String folder = "C:/Users/User/Downloads/Document/Operating Systems/Server Folder";
+    private final String folder = "/Users/tpmac/Documents/SU/1-2564/517312-Operating Systems/code/server";
     private final int port = 3300;
     private final static int downloadPort = 3301;
     private LocalDateTime date;
@@ -85,7 +85,6 @@ public class Server {
 
                     fileName.add(file.getName());
 
-
                     myFiles.add(new GeneralFile(i, fileName.get(i), file.length(), getFileExtension(fileName.get(i)),
                             file.getAbsolutePath()));
                 }
@@ -99,7 +98,7 @@ public class Server {
                     new Thread(new ThreadClient(socket, clientNo++, uploadServer)).start();
                 }
             } catch (IOException ex) {
-//                ex.printStackTrace();
+                // ex.printStackTrace();
             }
         }).start();
         frame.addWindowListener(new WindowAdapter() {
@@ -168,20 +167,31 @@ public class Server {
                 // DataInputStream bufferedInputStream = new DataInputStream(inputStream);
 
                 DataOutputStream outputToClient = new DataOutputStream(socket.getOutputStream());
-//                System.out.println(socket.getPort() + " length : " + end);
+                // System.out.println(socket.getPort() + " length : " + end);
                 outputToClient.writeInt(start);
                 outputToClient.writeInt(end);
-//                System.out.println(Thread.currentThread().getName() + " start : " + start + " end : " + (start + end)+" length : "+end);
-                byte[] buffer = new byte[end];
+                // System.out.println(Thread.currentThread().getName() + " start : " + start + "
+                // end : " + (start + end)+" length : "+end);
+                byte[] buffer = new byte[1024 * 1024];
                 int read;
+                int count = 0;
+                boolean check = false;
                 bufferedInputStream.skip(start);
                 while ((read = bufferedInputStream.read(buffer, 0, buffer.length)) != -1) {
+                    if (count + read > end) {
+                        read = end - count;
+                        count += read;
+                        check = true;
+                    }
                     outputToClient.write(buffer, 0, read);
-//                    System.out.println(Thread.currentThread().getName() + " Read : "+read+" bytes");
-                    if(read==end)
+                    if (check)
                         break;
+                    count += read;
+                    // System.out.println(Thread.currentThread().getName() + " Read : "+read+"
+                    // bytes");
                 }
-//                System.out.println(Thread.currentThread().getName() + "end");
+                // System.out.println(Thread.currentThread().getName() + " count : " + count);
+                // System.out.println(Thread.currentThread().getName() + "end");
                 socket.close();
 
             } catch (IOException e) {
@@ -242,7 +252,7 @@ public class Server {
 
                                     int fileLength = (int) (myFiles.get(i).getDataLength() / uploadThread);
 
-//                                    System.out.println(myFiles.get(i).getDataLength());
+                                    // System.out.println(myFiles.get(i).getDataLength());
                                     // MultiThreadUpload.setData(i);
 
                                     for (int j = 0; j < uploadThread; j++) {
@@ -272,7 +282,7 @@ public class Server {
                     }
                 }
             } catch (IOException ex) {
-//                ex.printStackTrace();
+                // ex.printStackTrace();
             }
         }
     }
