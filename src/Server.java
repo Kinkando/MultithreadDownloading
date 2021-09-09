@@ -24,7 +24,8 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableColumn;
 
 public class Server {
-    static ArrayList<GeneralFile> myFiles = new ArrayList<>();
+//    static ArrayList<GeneralFile> myFiles = new ArrayList<>();
+    private File[] fileList;
     private int clientNo = 0;
     private final String folder = "C:/Users/User/Downloads/Document/Operating Systems/Server Folder";
     private final int port = 3300;
@@ -50,20 +51,20 @@ public class Server {
         logScrollPane.setBounds(0, 60, screenSize.width, 250);
         logScrollPane.setBorder(null);
 
-        File[] fileList = new File(folder).listFiles();
-        ArrayList<File> files = new ArrayList<>();
-        ArrayList<String> fileName = new ArrayList<>();
-        ArrayList<byte[]> fileContentBytes = new ArrayList<>();
+        fileList = new File(folder).listFiles();
+//        ArrayList<File> files = new ArrayList<>();
+//        ArrayList<String> fileName = new ArrayList<>();
+//        ArrayList<byte[]> fileContentBytes = new ArrayList<>();
         DecimalFormat sizeFormat = new DecimalFormat("#,###");
         DecimalFormat sizeFormatPoint = new DecimalFormat("#,###.##");
         String[][] fileRow = new String[fileList.length][2];
         String[] fileSizeFormat = { " bytes", " KB", " MB", " GB" };
 
-        files.addAll(Arrays.asList(fileList));
-        for (int i = 0; i < files.size(); i++) {
-            fileRow[i][0] = files.get(i).getName();
+//        files.addAll(Arrays.asList(fileList));
+        for (int i = 0; i < fileList.length; i++) {
+            fileRow[i][0] = fileList[i].getName();
             int j = 0;
-            double fileSize = files.get(i).length();
+            double fileSize = fileList[i].length();
             for (j = 0; j < 3 && fileSize >= 1024; j++)
                 fileSize /= 1024.0;
             fileRow[i][1] = (j > 1 ? sizeFormatPoint.format(fileSize) : sizeFormat.format(fileSize))
@@ -80,15 +81,15 @@ public class Server {
                 logField.append(date.format(dateFormat) + " Server started time");
                 logField.setEditable(false);
 
-                for (int i = 0; i < files.size(); i++) {
-                    File file = files.get(i);
-
-                    fileName.add(file.getName());
-
-
-                    myFiles.add(new GeneralFile(i, fileName.get(i), file.length(), getFileExtension(fileName.get(i)),
-                            file.getAbsolutePath()));
-                }
+//                for (int i = 0; i < files.size(); i++) {
+//                    File file = files.get(i);
+//
+//                    fileName.add(file.getName());
+//
+//
+//                    myFiles.add(new GeneralFile(i, fileName.get(i), file.length(), getFileExtension(fileName.get(i)),
+//                            file.getAbsolutePath()));
+//                }
                 // ThreadClient.createUploadServer();
                 ServerSocket uploadServer = new ServerSocket(downloadPort);
                 while (true) {
@@ -163,7 +164,7 @@ public class Server {
         @Override
         public void run() {
             try {
-                InputStream inputStream = new FileInputStream(myFiles.get(index).getPath());
+                InputStream inputStream = new FileInputStream(fileList[index].getAbsolutePath());
                 InputStream bufferedInputStream = new BufferedInputStream(inputStream);
                 // DataInputStream bufferedInputStream = new DataInputStream(inputStream);
 
@@ -175,12 +176,16 @@ public class Server {
                 byte[] buffer = new byte[end];
                 int read;
                 bufferedInputStream.skip(start);
-                while ((read = bufferedInputStream.read(buffer, 0, buffer.length)) != -1) {
-                    outputToClient.write(buffer, 0, read);
-//                    System.out.println(Thread.currentThread().getName() + " Read : "+read+" bytes");
-                    if(read==end)
-                        break;
-                }
+                
+                bufferedInputStream.read(buffer, 0, buffer.length);             // Read all at once
+                outputToClient.write(buffer, 0, buffer.length);                 // Send all at once
+                // Send partial of data file 
+//                while ((read = bufferedInputStream.read(buffer, 0, buffer.length)) != -1) {
+//                    outputToClient.write(buffer, 0, read);
+//                    if(read==end)
+//                        break;
+//                }
+
 //                System.out.println(Thread.currentThread().getName() + "end");
                 socket.close();
 
@@ -215,14 +220,13 @@ public class Server {
                 DataInputStream inputFromClient = new DataInputStream(socket.getInputStream());
                 DataOutputStream outputToClient = new DataOutputStream(socket.getOutputStream());
 
-                outputToClient.writeInt(myFiles.size());
+                outputToClient.writeInt(fileList.length);
                 // outputToClient.writeChar(1);
                 // outputToClient.writeChars("O");
 
                 PrintWriter writer = new PrintWriter(outputToClient, true);
-                myFiles.forEach((f) -> {
+                for(File f : fileList)
                     writer.println(f.getName());
-                });
 
                 while (true) {
                     try {
@@ -232,24 +236,26 @@ public class Server {
                         if (fileName.contains("successful")) {
                             logField.append("\n" + date.format(dateFormat) + " Client " + (no + 1));
                             logField.append(" Download status : " + fileName.substring(fileName.lastIndexOf(" ")+1));
+                            logField.append("\n" + date.format(dateFormat) + " Client " + (no + 1));
+                            logField.append(" Take time to download : " + inputFromClient.readUTF()+" seconds");
                         } else {
                             boolean found = false;
-                            for (int i = 0; i < myFiles.size(); i++) {
-                                if (myFiles.get(i).getName().equalsIgnoreCase(fileName)) {
+                            for (int i = 0; i < fileList.length; i++) {
+                                if (fileList[i].getName().equalsIgnoreCase(fileName)) {
                                     uploadThread = inputFromClient.readInt();
 
-                                    outputToClient.writeInt((int) myFiles.get(i).getDataLength());
+                                    outputToClient.writeInt((int) fileList[i].length());
 
-                                    int fileLength = (int) (myFiles.get(i).getDataLength() / uploadThread);
+                                    int fileLength = (int) (fileList[i].length() / uploadThread);
 
 //                                    System.out.println(myFiles.get(i).getDataLength());
                                     // MultiThreadUpload.setData(i);
 
                                     for (int j = 0; j < uploadThread; j++) {
-                                        Socket socket = uploadServer.accept();
-                                        new Thread(new MultiThreadUpload(socket, i, j * fileLength,
+                                        Socket uploadSocket = uploadServer.accept();
+                                        new Thread(new MultiThreadUpload(uploadSocket, i, j * fileLength,
                                                 j == uploadThread - 1
-                                                        ? (int) myFiles.get(i).getDataLength() - (j * fileLength)
+                                                        ? (int) fileList[i].length() - (j * fileLength)
                                                         : fileLength)).start();
                                     }
 
@@ -264,7 +270,7 @@ public class Server {
                             }
                         }
                     } catch (IOException ex) {
-                        System.out.println(ex);
+//                        System.out.println(ex);
                         date = LocalDateTime.now();
                         logField.append("\n" + date.format(dateFormat) + " Client " + (no + 1) + " is disconnected");
                         socket.close();
