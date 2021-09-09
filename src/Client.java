@@ -39,6 +39,7 @@ public class Client {
         frame.setSize(700, 105);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setResizable(false);
+        frame.setLocation(screenSize.width/2-frame.getWidth()/2, screenSize.height/2-400);
 
         label = new JLabel("Folder from server port " + port);
         label.setFont(THSarabunFont);
