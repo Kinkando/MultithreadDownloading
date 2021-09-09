@@ -164,8 +164,7 @@ public class Server {
         @Override
         public void run() {
             try {
-                InputStream inputStream = new FileInputStream(fileList[index].getAbsolutePath());
-                InputStream bufferedInputStream = new BufferedInputStream(inputStream);
+                InputStream bufferedInputStream = new BufferedInputStream(new FileInputStream(fileList[index].getAbsolutePath()));
                 // DataInputStream bufferedInputStream = new DataInputStream(inputStream);
 
                 DataOutputStream outputToClient = new DataOutputStream(socket.getOutputStream());
@@ -177,8 +176,8 @@ public class Server {
                 int read;
                 bufferedInputStream.skip(start);
                 
-                bufferedInputStream.read(buffer, 0, buffer.length);             // Read all at once
-                outputToClient.write(buffer, 0, buffer.length);                 // Send all at once
+                bufferedInputStream.read(buffer);   //buffer, 0, buffer.length          // Read all at once
+                outputToClient.write(buffer);       //buffer, 0, buffer.length          // Send all at once
                 // Send partial of data file 
 //                while ((read = bufferedInputStream.read(buffer, 0, buffer.length)) != -1) {
 //                    outputToClient.write(buffer, 0, read);
