@@ -126,6 +126,7 @@ public class Client {
                                     download.success = true;
                                     downloadProgress.progressBar.setValue(100);
                                     Thread.sleep(2000);
+                                    downloadProgress.progressBar.setString("Download Successful");
                                     downloadProgress.frame.setVisible(false);
 //                                    System.out.println("Download completed: 100%");
                                 } else {
@@ -190,6 +191,7 @@ public class Client {
             try {
 //                ex.printStackTrace();
                 socket.close();
+                System.exit(0);
             } catch (IOException ex1) {
                 
             }
@@ -197,7 +199,6 @@ public class Client {
     }
 
     class Download {
-
         public int percent = 0;
         public boolean success = false;
     }
@@ -205,18 +206,18 @@ public class Client {
     class DownloadProgress {
 
         private JFrame frame;
-        private JPanel panel;
+        private final JPanel panel;
         private JProgressBar progressBar;
 
         public DownloadProgress(String fileName) {
-            frame = new JFrame("Download File : " + fileName);
+            frame = new JFrame("Downloading...");
             frame.setResizable(false);
             panel = new JPanel();
             progressBar = new JProgressBar();
 
-            panel.setBackground(new Color(0, 153, 204));
+//            panel.setBackground(new Color(0, 153, 204));
 
-            progressBar.setForeground(new java.awt.Color(255, 51, 255));
+//            progressBar.setForeground(new Color(255, 51, 255));
             progressBar.setLocation(10, 10);
             progressBar.setSize(280, 40);
             progressBar.setStringPainted(true);
