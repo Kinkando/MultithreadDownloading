@@ -231,7 +231,7 @@ public class Server {
                         String fileName = inputFromClient.readUTF();
                         if (fileName.contains("successful")) {
                             logField.append("\n" + date.format(dateFormat) + " Client " + (no + 1));
-                            logField.append(" Download status : " + fileName.substring(fileName.lastIndexOf(" ")));
+                            logField.append(" Download status : " + fileName.substring(fileName.lastIndexOf(" ")+1));
                         } else {
                             boolean found = false;
                             for (int i = 0; i < myFiles.size(); i++) {
