@@ -1,35 +1,18 @@
-
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.FileDialog;
-import java.awt.Font;
+import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.RandomAccessFile;
+import java.io.*;
 import java.net.*;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.concurrent.CountDownLatch;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import javax.swing.*;
 
 public class Client {
 
-    private Download download = new Download();
-    
-    DataOutputStream toServer = null;
-    DataInputStream fromServer = null;
-    ArrayList<String> fileList = new ArrayList<>();
+    private Download download;
+    private Socket socket;
+    private DataOutputStream toServer = null;
+    private DataInputStream fromServer = null;
+    private final ArrayList<String> fileList;
 
     private final Font THSarabunFont = new Font("TH Sarabun New", Font.PLAIN, 26);
     private final String hostName = "localhost";
@@ -44,6 +27,10 @@ public class Client {
     private JComboBox fileComboBox;
 
     private JComboBox threadComboBox;
+
+    public Client() {
+        this.fileList = new ArrayList<>();
+    }
 
     private void start() {
 
@@ -64,15 +51,15 @@ public class Client {
         downloadButton.setFocusable(false);
         // downloadButton.addActionListener(this::downloadButtonAction);
         downloadButton.addActionListener(e -> {
-            try {
+//            try {
                 downloadButtonAction(e);
-            } catch (InterruptedException zz) {
-                System.out.println(zz);
-                zz.printStackTrace();
-            }
+//            } catch (InterruptedException zz) {
+//                System.out.println(zz);
+//                zz.printStackTrace();
+//            }
         });
 
-        String threadNum[] = { "1", "2", "3", "4", "5", "6", "7", "8", "9", "10" };
+        String threadNum[] = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10"};
         threadComboBox = new JComboBox(threadNum);
         threadComboBox.setFont(THSarabunFont);
         threadComboBox.setSelectedIndex(0);
@@ -81,8 +68,7 @@ public class Client {
 
         try {
 
-            Socket socket = new Socket(hostName, port);
-
+            socket = new Socket(hostName, port);
             fromServer = new DataInputStream(socket.getInputStream());
             toServer = new DataOutputStream(socket.getOutputStream());
 
@@ -92,7 +78,6 @@ public class Client {
 
             for (int i = 0; i < fileNo; i++)
                 fileList.add(reader.readLine());
-
             fileComboBox = new JComboBox(fileList.toArray());
             fileComboBox.setFont(THSarabunFont);
             fileComboBox.setSelectedIndex(0);
@@ -111,168 +96,141 @@ public class Client {
         }
     }
 
-    void downloadButtonAction(ActionEvent e) throws InterruptedException {
+    void downloadButtonAction(ActionEvent e) {
         String fileNameSelected = fileComboBox.getSelectedItem().toString();
-        String fileNameExtension = "."+fileNameSelected.substring(fileNameSelected.lastIndexOf(".")+1);
-
+        String fileNameExtension = "." + fileNameSelected.substring(fileNameSelected.lastIndexOf(".") + 1);
         downloadThread = Integer.parseInt(threadComboBox.getSelectedItem().toString());
-//        System.out.println(downloadThread);
-
         try {
             FileDialog fd = new FileDialog(frame, "Save File", FileDialog.SAVE);
             fd.setFile(fileNameSelected);
             fd.setVisible(true);
             if (fd.getFile() != null) {
-
                 toServer.writeUTF(fileNameSelected);
-
                 toServer.writeInt(downloadThread);
-
 //                int latchGroupCount = downloadThread;
 //                CountDownLatch latch = new CountDownLatch(latchGroupCount);
-
                 int fileContentLength = fromServer.readInt();
-                
-//                System.out.println(fileContentLength);
                 long starttime = System.currentTimeMillis();
 //                long starttime2 = System.currentTimeMillis();
-                
-                String filePath = fd.getDirectory()+fd.getFile()+
-                        ((fd.getFile().lastIndexOf(fileNameExtension)==fd.getFile().length()-fileNameExtension.length())
+                String filePath = fd.getDirectory() + fd.getFile()
+                        + ((fd.getFile().lastIndexOf(fileNameExtension) == fd.getFile().length() - fileNameExtension.length())
                         ? "" : fileNameExtension);
                 download = new Download();
                 if (fileContentLength > 0) {
+                    DownloadProgress downloadProgress = new DownloadProgress(fileNameSelected);
+                    new Thread(() -> {
+                        while (!download.success) {
+                            try {
+                                Thread.sleep(10); //Interval 0.01 seconds to calculate (500 = 0.5 seconds)
+                                if (download.percent >= fileContentLength) {
+                                    download.success = true;
+                                    downloadProgress.progressBar.setValue(100);
+                                    Thread.sleep(2000);
+                                    downloadProgress.frame.setVisible(false);
+//                                    System.out.println("Download completed: 100%");
+                                } else {
+//                                    System.out.println("Download : "+((int) (float) download.percent / (float) fileContentLength * 100) + "%");
+                                    downloadProgress.progressBar.setValue((int) ((float) download.percent / (float) fileContentLength * 100));
+                                }
+                            } catch (InterruptedException ex) {
+                                
+                            }
+
+                        }
+                        OpenFile openf = new OpenFile(fd.getDirectory(), fd.getDirectory() + fd.getFile(), fd.getFile());
+                        openf.setVisible(true);
+                    }).start();
                     for (int i = 0; i < downloadThread; i++) {
                         new Thread(() -> {
                             try {
                                 Socket socket = new Socket("localhost", downloadPort);
                                 DataInputStream fromDServer = new DataInputStream(socket.getInputStream());
                                 InputStream bufferedInputStream = new BufferedInputStream(fromDServer);
-//                                Download partial = new Download();
                                 int start = fromDServer.readInt();
                                 int end = fromDServer.readInt();
-                                
+
                                 RandomAccessFile raf = new RandomAccessFile(filePath, "rwd");  //read write synchronized
                                 raf.seek(start);
-                                
+
                                 byte[] buffer = new byte[end];
                                 int read = 0;
-                                
-                                while((read = bufferedInputStream.read(buffer, 0, buffer.length)) > -1) {
+
+                                while ((read = bufferedInputStream.read(buffer, 0, buffer.length)) > -1) {
                                     raf.write(buffer, 0, read);
-                                    synchronized(Download.class) {
-                                        download.percent = download.percent+read;
+                                    synchronized (Download.class) {
+                                        download.percent = download.percent + read;
                                     }
                                 }
-                                
+//                                System.out.println(Thread.currentThread().getName() + " finished read");
+//                                latch.countDown();
                                 raf.close();
                                 bufferedInputStream.close();
-                                
-//                                System.out.println(Thread.currentThread().getName() + " finished read");
-
-//                                latch.countDown();
+                                fromDServer.close();
                                 socket.close();
                             } catch (IOException e1) {
                                 e1.printStackTrace();
                             }
+
                         }, "Thread-" + i).start();
                     }
-                    DownloadProgress downloadProgress = new DownloadProgress(fileNameSelected);
-                    Thread process = new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            while (!download.success) {
-                                try {
-                                    Thread.sleep(250); //Interval 0.5 seconds to calculate
-                                } catch (InterruptedException ex) {
-                                    Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
-                                }
-                                if (download.percent >= fileContentLength) {
-                                    download.success = true;
-                                    downloadProgress.percent.setText("100%");
-                                    downloadProgress.progressBar.setValue(100);
-                                    downloadProgress.frame.setVisible(false);
-//                                    System.out.println("Download completed: 100%");
-                                } 
-                                else {
-//                                    System.out.println("Download : "+((int) (float) download.percent / (float) fileContentLength * 100) + "%");
-                                    downloadProgress.percent.setText((int)((float)download.percent/(float)fileContentLength * 100)+"%");
-                                    downloadProgress.progressBar.setValue((int)((float)download.percent/(float)fileContentLength * 100));
-                                }
-                            }
-                            OpenFile openf = new OpenFile(fd.getDirectory(), fd.getDirectory() + fd.getFile());
-                            openf.setVisible(true);
-                        }
-                        
-                    });
-                    process.start();
-                    
 //                    latch.await();
-                    
 //                    long finish = System.currentTimeMillis();
 //                    long timeElapsed = finish - starttime;
 //                    System.out.println("all read Timer : " + timeElapsed);
-
 //                    long finish2 = System.currentTimeMillis();
 //                    long timeElapsed2 = finish2 - starttime2;
 //                    System.out.println("file writed read Timer : " + timeElapsed2);
-
                     toServer.writeUTF("Download file successful");
                 }
-
-            } else
+            } 
+            else {
                 toServer.writeUTF("Cancel request file download");
+            }
         } catch (IOException ex) {
-            ex.printStackTrace();
+            try {
+//                ex.printStackTrace();
+                socket.close();
+            } catch (IOException ex1) {
+                
+            }
         }
     }
 
     class Download {
+
         public int percent = 0;
         public boolean success = false;
     }
-    
+
     class DownloadProgress {
-    private JFrame frame;
-    private JPanel panel;
-//    private JLabel loading;
-    private JLabel percent;
-    private JProgressBar progressBar;
-    public DownloadProgress(String fileName) {
-        frame = new JFrame("Download File : "+fileName);
-        frame.setResizable(false);
-        panel = new JPanel();
-//        loading = new JLabel();
-        percent = new JLabel();
-        progressBar = new JProgressBar();
-        
-        panel.setBackground(new Color(0, 153, 204));
-        
-        progressBar.setForeground(new java.awt.Color(255, 51, 255));
-        progressBar.setLocation(10, 10);
-        progressBar.setSize(280, 40);
 
-//        loading.setFont(new Font("Dialog", 3, 18)); // NOI18N
-//        loading.setForeground(new java.awt.Color(255, 0, 51));
-//        loading.setText("Loading...");
+        private JFrame frame;
+        private JPanel panel;
+        private JProgressBar progressBar;
 
-        percent.setFont(new Font("Angsana New", Font.PLAIN, 24)); // NOI18N
-        percent.setText("0%");
-        percent.setLocation(140,3);
-        percent.setSize(50,50);
+        public DownloadProgress(String fileName) {
+            frame = new JFrame("Download File : " + fileName);
+            frame.setResizable(false);
+            panel = new JPanel();
+            progressBar = new JProgressBar();
 
-        panel.setLayout(null);
-//        panel.add(loading);
-        panel.add(percent);
-        panel.add(progressBar);
-        
-        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        frame.getContentPane().add(panel);
-        frame.setSize(310, 90);
-        frame.setVisible(true);
+            panel.setBackground(new Color(0, 153, 204));
+
+            progressBar.setForeground(new java.awt.Color(255, 51, 255));
+            progressBar.setLocation(10, 10);
+            progressBar.setSize(280, 40);
+            progressBar.setStringPainted(true);
+
+            panel.setLayout(null);
+            panel.add(progressBar);
+
+            frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+            frame.getContentPane().add(panel);
+            frame.setSize(310, 90);
+            frame.setVisible(true);
+        }
     }
-    }
-    
+
     public static void main(String[] args) {
         Client client = new Client();
         client.start();
