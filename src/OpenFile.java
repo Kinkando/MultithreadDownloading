@@ -14,10 +14,10 @@ public class OpenFile extends JFrame {
     private JLabel jLabel1;
    
     public OpenFile(String directory, String filePath, String fileName) {
-        initComponents();
         this.directory = directory;
         this.filePath = filePath;
         this.fileName = fileName;
+        initComponents();
     }
    
     @SuppressWarnings("unchecked")
