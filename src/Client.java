@@ -3,7 +3,7 @@ import java.awt.event.ActionEvent;
 import java.io.*;
 import java.net.*;
 import java.util.*;
-import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import javax.swing.*;
 
 public class Client {
@@ -25,8 +25,9 @@ public class Client {
     private JLabel label, tagLabel;
     private JButton downloadButton;
     private JComboBox fileComboBox;
-
     private JComboBox threadComboBox;
+    
+    private final Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 
     public Client() {
         this.fileList = new ArrayList<>();
@@ -49,15 +50,7 @@ public class Client {
 
         downloadButton = new JButton("Download");
         downloadButton.setFocusable(false);
-        // downloadButton.addActionListener(this::downloadButtonAction);
-        downloadButton.addActionListener(e -> {
-//            try {
-                downloadButtonAction(e);
-//            } catch (InterruptedException zz) {
-//                System.out.println(zz);
-//                zz.printStackTrace();
-//            }
-        });
+        downloadButton.addActionListener(e -> {downloadButtonAction(e); });
 
         String threadNum[] = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10"};
         threadComboBox = new JComboBox(threadNum);
@@ -117,35 +110,41 @@ public class Client {
                         ? "" : fileNameExtension);
                 download = new Download();
                 if (fileContentLength > 0) {
-                    DownloadProgress downloadProgress = new DownloadProgress(fileNameSelected);
+                    DownloadFrame downloadFrame = new DownloadFrame(fd.getDirectory(), fd.getDirectory() + fd.getFile(), fd.getFile());
                     new Thread(() -> {
                         while (!download.success) {
                             try {
                                 Thread.sleep(10); //Interval 0.01 seconds to calculate (500 = 0.5 seconds)
                                 if (download.percent >= fileContentLength) {
                                     download.success = true;
-                                    downloadProgress.progressBar.setValue(100);
-                                    Thread.sleep(2000);
-                                    downloadProgress.progressBar.setString("Download Successful");
-                                    downloadProgress.frame.setVisible(false);
+                                    downloadFrame.progressBar.setValue(100);
+                                    downloadFrame.progressBar.setString("Download Successful");
+                                    downloadFrame.setTitle("Download file complete");
+                                    downloadFrame.setSize(downloadFrame.getWidth(), downloadFrame.getHeight()+40);
+                                    
+                                    long finish = System.currentTimeMillis();
+                                    long timeElapsed = finish - starttime;
+//                    System.out.println("all read Timer : " + timeElapsed);
+                                    toServer.writeUTF("Download file successful");
+                                    toServer.writeUTF(""+TimeUnit.MILLISECONDS.toSeconds(timeElapsed));
 //                                    System.out.println("Download completed: 100%");
                                 } else {
 //                                    System.out.println("Download : "+((int) (float) download.percent / (float) fileContentLength * 100) + "%");
-                                    downloadProgress.progressBar.setValue((int) ((float) download.percent / (float) fileContentLength * 100));
+                                    downloadFrame.progressBar.setValue((int) ((float) download.percent / (float) fileContentLength * 100));
                                 }
                             } catch (InterruptedException ex) {
+                                
+                            } catch (IOException ex) {
                                 
                             }
 
                         }
-                        OpenFile openf = new OpenFile(fd.getDirectory(), fd.getDirectory() + fd.getFile(), fd.getFile());
-                        openf.setVisible(true);
                     }).start();
                     for (int i = 0; i < downloadThread; i++) {
                         new Thread(() -> {
                             try {
-                                Socket socket = new Socket("localhost", downloadPort);
-                                DataInputStream fromDServer = new DataInputStream(socket.getInputStream());
+                                Socket downloadSocket = new Socket("localhost", downloadPort);
+                                DataInputStream fromDServer = new DataInputStream(downloadSocket.getInputStream());
                                 InputStream bufferedInputStream = new BufferedInputStream(fromDServer);
                                 int start = fromDServer.readInt();
                                 int end = fromDServer.readInt();
@@ -167,9 +166,9 @@ public class Client {
                                 raf.close();
                                 bufferedInputStream.close();
                                 fromDServer.close();
-                                socket.close();
+                                downloadSocket.close();
                             } catch (IOException e1) {
-                                e1.printStackTrace();
+//                                e1.printStackTrace();
                             }
 
                         }, "Thread-" + i).start();
@@ -181,7 +180,6 @@ public class Client {
 //                    long finish2 = System.currentTimeMillis();
 //                    long timeElapsed2 = finish2 - starttime2;
 //                    System.out.println("file writed read Timer : " + timeElapsed2);
-                    toServer.writeUTF("Download file successful");
                 }
             } 
             else {
@@ -203,36 +201,52 @@ public class Client {
         public boolean success = false;
     }
 
-    class DownloadProgress {
-
-        private JFrame frame;
-        private final JPanel panel;
-        private JProgressBar progressBar;
-
-        public DownloadProgress(String fileName) {
-            frame = new JFrame("Downloading...");
-            frame.setResizable(false);
-            panel = new JPanel();
-            progressBar = new JProgressBar();
-
-//            panel.setBackground(new Color(0, 153, 204));
-
-//            progressBar.setForeground(new Color(255, 51, 255));
-            progressBar.setLocation(10, 10);
-            progressBar.setSize(280, 40);
-            progressBar.setStringPainted(true);
-
-            panel.setLayout(null);
-            panel.add(progressBar);
-
-            frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-            frame.getContentPane().add(panel);
-            frame.setSize(310, 90);
-            frame.setVisible(true);
-        }
-    }
+//    class DownloadProgress {
+//
+//        private JFrame frame;
+//        private final JPanel panel;
+//        private JProgressBar progressBar;
+//
+//        public DownloadProgress(String fileName) {
+//            frame = new JFrame("Downloading...");
+//            frame.setResizable(false);
+//            panel = new JPanel();
+//            progressBar = new JProgressBar();
+//
+////            panel.setBackground(new Color(0, 153, 204));
+//
+////            progressBar.setForeground(new Color(255, 51, 255));
+//            progressBar.setLocation(10, 10);
+//            progressBar.setSize(280, 40);
+//            progressBar.setStringPainted(true);
+//
+//            panel.setLayout(null);
+//            panel.add(progressBar);
+//
+//            frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+//            frame.getContentPane().add(panel);
+//            frame.setSize(310, 90);
+//            frame.setVisible(true);
+//        }
+//    }
 
     public static void main(String[] args) {
+        try {
+            for (UIManager.LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
+                    UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
+            }
+        } catch (ClassNotFoundException ex) {
+            
+        } catch (InstantiationException ex) {
+            
+        } catch (IllegalAccessException ex) {
+            
+        } catch (UnsupportedLookAndFeelException ex) {
+            
+        }
         Client client = new Client();
         client.start();
     }
