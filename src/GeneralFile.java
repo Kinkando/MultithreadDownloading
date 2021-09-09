@@ -2,9 +2,9 @@ public class GeneralFile {
 
     private int id;
     private String name;
-    private long datalength;
+    private final long datalength;
     private String fileExtension;
-    private String path;
+    private final String path;
 
     public GeneralFile(int id, String name, long datalength, String fileExtension, String path) {
         this.id = id;
