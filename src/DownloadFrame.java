@@ -86,6 +86,7 @@ public class DownloadFrame extends JFrame {
         );
         pack();
         setSize(getWidth(), getHeight()-40);
+        setLocation(screenSize.width-600, screenSize.height/2 - 420);
         setVisible(true);
     }
     private void OpenFolderButton(MouseEvent evt) {
