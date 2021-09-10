@@ -172,12 +172,38 @@ public class Server {
                 outputToClient.writeInt(start);
                 outputToClient.writeInt(end);
 //                System.out.println(Thread.currentThread().getName() + " start : " + start + " end : " + (start + end)+" length : "+end);
-                byte[] buffer = new byte[end];
+
+
+                byte[] buffer = new byte[1024 * 1024];
                 int read;
+                int count = 0;
+                boolean check = false;
                 bufferedInputStream.skip(start);
+                while ((read = bufferedInputStream.read(buffer, 0, buffer.length)) != -1) {
+                    if (count + read > end) {
+                        read = end - count;
+                        count += read;
+                        check = true;
+                    }
+                    outputToClient.write(buffer, 0, read);
+                    if (check)
+                        break;
+                    count += read;
+                    // System.out.println(Thread.currentThread().getName() + " Read : "+read+"
+                    // bytes");
+                }
+
+
+//                byte[] buffer = new byte[end];
+//                int read;
+//                bufferedInputStream.skip(start);
                 
-                bufferedInputStream.read(buffer);   //buffer, 0, buffer.length          // Read all at once
-                outputToClient.write(buffer);       //buffer, 0, buffer.length          // Send all at once
+                
+                
+//                bufferedInputStream.read(buffer);   //buffer, 0, buffer.length          // Read all at once
+//                outputToClient.write(buffer);       //buffer, 0, buffer.length          // Send all at once
+
+
                 // Send partial of data file 
 //                while ((read = bufferedInputStream.read(buffer, 0, buffer.length)) != -1) {
 //                    outputToClient.write(buffer, 0, read);
