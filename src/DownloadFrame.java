@@ -95,7 +95,8 @@ public class DownloadFrame extends JFrame {
             Desktop desktop = null;
             if (Desktop.isDesktopSupported()) { //Check Desktop class support on current platform
                 desktop = Desktop.getDesktop(); 
-            } //Return the Desktop instance of the current context to allow open file directory on file explorer
+            } //Return the Desktop instance of the current context to allow open file directory on file explorer 
+              //can launch default browser, file explorer 
             try {
                 desktop.open(folder);
             } 
