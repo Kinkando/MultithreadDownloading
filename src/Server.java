@@ -258,7 +258,7 @@ public class Server {
                             logField.append("\n" + date.format(dateFormat) + " Client " + (no + 1));
                             logField.append(" Download status : " + fileName.substring(fileName.lastIndexOf(" ")+1));
                             logField.append("\n" + date.format(dateFormat) + " Client " + (no + 1));
-                            logField.append(" Take time to download : " + inputFromClient.readUTF()+" seconds");
+                            logField.append(" Take time to download : " + inputFromClient.readUTF()+" seconds ("+uploadThread+" threads)");
                         } else {
                             boolean found = false;
                             for (int i = 0; i < fileList.length; i++) {
