@@ -103,9 +103,10 @@ public class Client {
                 String filePath = fd.getDirectory() + fd.getFile()
                         + ((fd.getFile().lastIndexOf(fileNameExtension) == fd.getFile().length() - fileNameExtension.length())
                         ? "" : fileNameExtension);
+                File f = new File(filePath);
                 download = new Download();
                 if (fileContentLength > 0) {
-                    DownloadFrame downloadFrame = new DownloadFrame(fd.getDirectory(), fd.getDirectory() + fd.getFile(), filePath);
+                    DownloadFrame downloadFrame = new DownloadFrame(fd.getDirectory(), f.getAbsolutePath(), f.getName());
                     downloadButton.setEnabled(false);
                     new Thread(() -> {
                         while (!download.success) {
