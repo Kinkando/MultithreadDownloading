@@ -93,7 +93,7 @@ public class Client {
         downloadThread = Integer.parseInt(threadComboBox.getSelectedItem().toString());
         try {
             FileDialog fd = new FileDialog(frame, "Save File", FileDialog.SAVE);
-            fd.setFile(fileNameSelected+fileNameExtension);
+            fd.setFile(fileNameSelected);
             fd.setVisible(true);
             if (fd.getFile() != null) {
                 toServer.writeUTF(fileNameSelected);
@@ -105,7 +105,7 @@ public class Client {
                         ? "" : fileNameExtension);
                 download = new Download();
                 if (fileContentLength > 0) {
-                    DownloadFrame downloadFrame = new DownloadFrame(fd.getDirectory(), fd.getDirectory() + fd.getFile(), fd.getFile());
+                    DownloadFrame downloadFrame = new DownloadFrame(fd.getDirectory(), fd.getDirectory() + fd.getFile(), filePath);
                     downloadButton.setEnabled(false);
                     new Thread(() -> {
                         while (!download.success) {
