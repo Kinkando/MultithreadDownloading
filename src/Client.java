@@ -110,7 +110,7 @@ public class Client {
                 new Thread(() -> {
                     while (!download.success) {
                         try {
-                            Thread.sleep(10); //Interval 0.01 seconds to calculate (500 = 0.5 seconds)
+                            Thread.sleep(100); //Interval 0.1 seconds to calculate (1000 milliseconds = 1 seconds)
                             if (download.percent >= fileContentLength) {
                                 download.success = true;
                                 downloadFrame.progressBar.setValue(100);
