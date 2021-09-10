@@ -120,13 +120,13 @@ public class Server {
         private final Socket socket;
         private final int index;
         private final int start;
-        private final int end;
+        private final int size;
 
         MultiThreadUpload(Socket socket, int index, int start, int end) {
             this.socket = socket;
             this.index = index;
             this.start = start;
-            this.end = end;
+            this.size = end;
         }
 
         @Override
@@ -140,12 +140,11 @@ public class Server {
                 DataOutputStream outputToClient = new DataOutputStream(socket.getOutputStream());
                 
                 outputToClient.writeInt(start);
-                outputToClient.writeInt(end);
 
                 byte[] buffer = new byte[1024 * 1024];      //read byte data 1024 * 1024 KB each time
                 int read;                                   //Last location or length of byte data that readed
                 int count = 0;
-                int allRound = (int) Math.ceil((end/buffer.length));
+                int allRound = (int) Math.ceil((size/buffer.length));
 //                boolean check = false;
                 bufferedInputStream.skip(start);
                 while ((read = bufferedInputStream.read(buffer)) != -1 && count!=allRound+1) {
@@ -209,7 +208,7 @@ public class Server {
                             logField.append(" Download status : " + fileName.substring(fileName.lastIndexOf(" ")+1));
                             logField.append("\n" + date.format(dateFormat) + " Client " + (no + 1));
                             logField.append(" Take time to download : " + inputFromClient.readUTF()+" seconds ("+uploadThread+" thread"+(uploadThread==1?")":"s)"));
-                        } 
+                        }
                         else {
                             boolean found = false;
                             for (int i = 0; i < fileList.length; i++) {
@@ -221,9 +220,9 @@ public class Server {
                                         Socket uploadSocket = uploadServer.accept();
                                         new Thread(new MultiThreadUpload(uploadSocket, i, j * fileLength,
                                                 j == uploadThread - 1
-                                                        ? (int) fileList[i].length() - (j * fileLength)
+                                                        ? (int) fileList[i].length() - (j * fileLength)     
                                                         : fileLength)).start();
-                                    }
+                                    }   //last thread = allFileSize - (sizePerThread * (threadNumber-1))
                                     found = true;
                                     break;
                                 }
