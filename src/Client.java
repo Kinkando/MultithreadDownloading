@@ -141,8 +141,7 @@ public class Client {
                                 DataInputStream fromDServer = new DataInputStream(downloadSocket.getInputStream());
                                 InputStream bufferedInputStream = new BufferedInputStream(fromDServer);
                                 int start = fromDServer.readInt();
-                                int end = fromDServer.readInt();
-
+                                
                                 RandomAccessFile raf = new RandomAccessFile(filePath, "rwd");  //read write synchronized
                                 raf.seek(start);
 
