@@ -88,8 +88,8 @@ public class Client {
     }
 
     void downloadButtonAction(ActionEvent e) {
-        String fileNameSelected = fileComboBox.getSelectedItem().toString();
-        String fileNameExtension = "." + fileNameSelected.substring(fileNameSelected.lastIndexOf(".") + 1);
+        String fileNameSelected = fileComboBox.getSelectedItem().toString();        //file name in combo box that selected
+        String fileNameExtension = "." + fileNameSelected.substring(fileNameSelected.lastIndexOf(".") + 1);  //file name extension
         downloadThread = Integer.parseInt(threadComboBox.getSelectedItem().toString());
         try {
             FileDialog fd = new FileDialog(frame, "Save File", FileDialog.SAVE);
