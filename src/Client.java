@@ -61,7 +61,6 @@ public class Client {
         threadComboBox.setFocusable(false);
 
         try {
-
             socket = new Socket(hostName, port);
             fromServer = new DataInputStream(socket.getInputStream());
             toServer = new DataOutputStream(socket.getOutputStream());
