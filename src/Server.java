@@ -140,14 +140,10 @@ public class Server {
         public void run() {
             try {
                 InputStream bufferedInputStream = new BufferedInputStream(new FileInputStream(fileList[index].getAbsolutePath()));
-                // DataInputStream bufferedInputStream = new DataInputStream(inputStream);
-
                 DataOutputStream outputToClient = new DataOutputStream(socket.getOutputStream());
-//                System.out.println(socket.getPort() + " length : " + end);
+                
                 outputToClient.writeInt(start);
                 outputToClient.writeInt(end);
-//                System.out.println(Thread.currentThread().getName() + " start : " + start + " end : " + (start + end)+" length : "+end);
-
 
                 byte[] buffer = new byte[1024 * 1024];
                 int read;
@@ -164,25 +160,8 @@ public class Server {
                     if (check)
                         break;
                     count += read;
-                    // System.out.println(Thread.currentThread().getName() + " Read : "+read+"
-                    // bytes");
                 }
-
-//                byte[] buffer = new byte[end];
-//                int read;
-//                bufferedInputStream.skip(start);
                 
-//                bufferedInputStream.read(buffer);   //buffer, 0, buffer.length          // Read all at once
-//                outputToClient.write(buffer);       //buffer, 0, buffer.length          // Send all at once
-
-                // Send partial of data file 
-//                while ((read = bufferedInputStream.read(buffer, 0, buffer.length)) != -1) {
-//                    outputToClient.write(buffer, 0, read);
-//                    if(read==end)
-//                        break;
-//                }
-
-//                System.out.println(Thread.currentThread().getName() + "end");
                 socket.close();
 
             } catch (IOException e) {
@@ -217,8 +196,6 @@ public class Server {
                 DataOutputStream outputToClient = new DataOutputStream(socket.getOutputStream());
 
                 outputToClient.writeInt(fileList.length);
-                // outputToClient.writeChar(1);
-                // outputToClient.writeChars("O");
 
                 PrintWriter writer = new PrintWriter(outputToClient, true);
                 for(File f : fileList)
@@ -243,10 +220,7 @@ public class Server {
                                     outputToClient.writeInt((int) fileList[i].length());
 
                                     int fileLength = (int) (fileList[i].length() / uploadThread);
-
-//                                    System.out.println(myFiles.get(i).getDataLength());
-                                    // MultiThreadUpload.setData(i);
-
+                                    
                                     for (int j = 0; j < uploadThread; j++) {
                                         Socket uploadSocket = uploadServer.accept();
                                         new Thread(new MultiThreadUpload(uploadSocket, i, j * fileLength,
@@ -254,8 +228,6 @@ public class Server {
                                                         ? (int) fileList[i].length() - (j * fileLength)
                                                         : fileLength)).start();
                                     }
-
-                                    // outputToClient.write(myFiles.get(i).getData());
                                     found = true;
                                     break;
                                 }
@@ -266,7 +238,6 @@ public class Server {
                             }
                         }
                     } catch (IOException ex) {
-//                        System.out.println(ex);
                         date = LocalDateTime.now();
                         logField.append("\n" + date.format(dateFormat) + " Client " + (no + 1) + " is disconnected");
                         socket.close();
