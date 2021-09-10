@@ -144,10 +144,10 @@ public class Client {
                             RandomAccessFile raf = new RandomAccessFile(filePath, "rwd");  //read write synchronized
                             raf.seek(start);
 
-                            byte[] buffer = new byte[1024*1024];    //can be to 1024 but it slower than true size
+                            byte[] buffer = new byte[1024*1024];   
                             int read = 0;
 
-                            while ((read = bufferedInputStream.read(buffer)) > -1) {        //(buffer, 0, buffer.length)
+                            while ((read = bufferedInputStream.read(buffer)) > -1) { 
                                 raf.write(buffer, 0, read);
                                 synchronized (Download.class) {
                                     download.percent = download.percent + read;
