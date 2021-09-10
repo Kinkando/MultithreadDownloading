@@ -121,7 +121,7 @@ public class Client {
                                     
                                     long finish = System.currentTimeMillis();
                                     long timeElapsed = finish - starttime;
-                                    toServer.writeUTF("Download file successful");
+                                    toServer.writeUTF("\"successful\"");
                                     toServer.writeUTF(""+TimeUnit.MILLISECONDS.toSeconds(timeElapsed));
                                 } else {
                                     downloadFrame.progressBar.setValue((int) ((float) download.percent / (float) fileContentLength * 100));
