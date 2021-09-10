@@ -19,14 +19,14 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableColumn;
 
 public class Server {
-    private File[] fileList;
-    private int clientNo = 0;
-    private final String folder = "C:/Users/User/Downloads/Document/Operating Systems/Server Folder";
-    private final int port = 3300;
-    private final int downloadPort = 3301;
+    private File[] fileList;    //keep file storage in array
+    private int clientNo = 0;   //keep number of clients
+    private final String folder = "C:/Users/User/Downloads/Document/Operating Systems/Server Folder";   //File path of folder
+    private final int port = 3300;              //Port to connect server socket (Communication between server and client)
+    private final int downloadPort = 3301;      //Port to connect upload file server socket (Send and receive file)
     private LocalDateTime date;
     private final DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
-    private final Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+    private final Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();       //keep width and height of your PC screen size
     private final Font THSarabunFont = new Font("TH Sarabun New", Font.PLAIN, 26);
 
     private JFrame frame;
