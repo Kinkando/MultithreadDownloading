@@ -146,7 +146,7 @@ public class Server {
                 int count = 0;
                 boolean check = false;
                 bufferedInputStream.skip(start);
-                while ((read = bufferedInputStream.read(buffer, 0, buffer.length)) != -1) {
+                while ((read = bufferedInputStream.read(buffer)) != -1) {
                     if (count + read > end) {
                         read = end - count;
                         count += read;
@@ -157,7 +157,8 @@ public class Server {
                         break;
                     count += read;
                 }
-                
+                bufferedInputStream.close();
+                outputToClient.close();
                 socket.close();
 
             } catch (IOException e) {
