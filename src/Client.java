@@ -93,7 +93,7 @@ public class Client {
         downloadThread = Integer.parseInt(threadComboBox.getSelectedItem().toString());
         try {
             FileDialog fd = new FileDialog(frame, "Save File", FileDialog.SAVE);
-            fd.setFile(fileNameSelected);
+            fd.setFile(fileNameSelected+fileNameExtension);
             fd.setVisible(true);
             if (fd.getFile() != null) {
                 toServer.writeUTF(fileNameSelected);
