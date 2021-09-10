@@ -153,7 +153,7 @@ public class Client {
                                 RandomAccessFile raf = new RandomAccessFile(filePath, "rwd");  //read write synchronized
                                 raf.seek(start);
 
-                                byte[] buffer = new byte[end];    //can be to 1024 but it slower than true size
+                                byte[] buffer = new byte[1024*1024];    //can be to 1024 but it slower than true size
                                 int read = 0;
 
                                 while ((read = bufferedInputStream.read(buffer)) > -1) {        //(buffer, 0, buffer.length)
