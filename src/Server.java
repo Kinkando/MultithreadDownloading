@@ -139,12 +139,12 @@ public class Server {
                 InputStream bufferedInputStream = new BufferedInputStream(new FileInputStream(fileList[index].getAbsolutePath())); //Lock resource from Input File
                 DataOutputStream outputToClient = new DataOutputStream(socket.getOutputStream());
                 
-                outputToClient.writeInt(start);
+                outputToClient.writeInt(start);     //Send start index of each thread in partial of file
 
                 byte[] buffer = new byte[1024 * 1024];      //read byte data 1024 * 1024 KB each time
                 int read;                                   //Last location or length of byte data that readed
                 int count = 0;
-                int allRound = (int) Math.ceil((size/buffer.length));
+                int allRound = (int) Math.ceil((size/buffer.length));       //number of rounds = ceil(sizePerRound / bufferLength) + 1
 //                boolean check = false;
                 bufferedInputStream.skip(start);
                 while ((read = bufferedInputStream.read(buffer)) != -1 && count!=allRound+1) {
