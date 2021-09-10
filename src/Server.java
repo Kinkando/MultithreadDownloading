@@ -193,16 +193,12 @@ public class Server {
                     // bytes");
                 }
 
-
 //                byte[] buffer = new byte[end];
 //                int read;
 //                bufferedInputStream.skip(start);
                 
-                
-                
 //                bufferedInputStream.read(buffer);   //buffer, 0, buffer.length          // Read all at once
 //                outputToClient.write(buffer);       //buffer, 0, buffer.length          // Send all at once
-
 
                 // Send partial of data file 
 //                while ((read = bufferedInputStream.read(buffer, 0, buffer.length)) != -1) {
