@@ -22,7 +22,7 @@ public class DownloadFrame extends JFrame {
     }
     
     private void initComponents() {
-        setTitle("Downloading file");
+        setTitle("Download Manager");
         setResizable(false);
         openFolderButton = new JButton();
         label = new JLabel();
