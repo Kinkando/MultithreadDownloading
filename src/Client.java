@@ -81,7 +81,6 @@ public class Client {
             frame.getContentPane().add(label, BorderLayout.NORTH);
             frame.getContentPane().add(tagLabel, BorderLayout.WEST);
             JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, fileComboBox, threadComboBox);
-            // frame.getContentPane().add(fileComboBox, BorderLayout.CENTER);
             frame.getContentPane().add(splitPane, BorderLayout.CENTER);
             frame.getContentPane().add(downloadButton, BorderLayout.EAST);
             frame.setVisible(true);
@@ -101,11 +100,8 @@ public class Client {
             if (fd.getFile() != null) {
                 toServer.writeUTF(fileNameSelected);
                 toServer.writeInt(downloadThread);
-//                int latchGroupCount = downloadThread;
-//                CountDownLatch latch = new CountDownLatch(latchGroupCount);
                 int fileContentLength = fromServer.readInt();
                 long starttime = System.currentTimeMillis();
-//                long starttime2 = System.currentTimeMillis();
                 String filePath = fd.getDirectory() + fd.getFile()
                         + ((fd.getFile().lastIndexOf(fileNameExtension) == fd.getFile().length() - fileNameExtension.length())
                         ? "" : fileNameExtension);
@@ -125,12 +121,9 @@ public class Client {
                                     
                                     long finish = System.currentTimeMillis();
                                     long timeElapsed = finish - starttime;
-//                    System.out.println("all read Timer : " + timeElapsed);
                                     toServer.writeUTF("Download file successful");
                                     toServer.writeUTF(""+TimeUnit.MILLISECONDS.toSeconds(timeElapsed));
-//                                    System.out.println("Download completed: 100%");
                                 } else {
-//                                    System.out.println("Download : "+((int) (float) download.percent / (float) fileContentLength * 100) + "%");
                                     downloadFrame.progressBar.setValue((int) ((float) download.percent / (float) fileContentLength * 100));
                                 }
                             } catch (InterruptedException ex) {
@@ -162,8 +155,6 @@ public class Client {
                                         download.percent = download.percent + read;
                                     }
                                 }
-//                                System.out.println(Thread.currentThread().getName() + " finished read");
-//                                latch.countDown();
                                 raf.close();
                                 bufferedInputStream.close();
                                 fromDServer.close();
@@ -174,13 +165,6 @@ public class Client {
 
                         }, "Thread-" + i).start();
                     }
-//                    latch.await();
-//                    long finish = System.currentTimeMillis();
-//                    long timeElapsed = finish - starttime;
-//                    System.out.println("all read Timer : " + timeElapsed);
-//                    long finish2 = System.currentTimeMillis();
-//                    long timeElapsed2 = finish2 - starttime2;
-//                    System.out.println("file writed read Timer : " + timeElapsed2);
                 }
             } 
             else {
@@ -201,35 +185,6 @@ public class Client {
         public int percent = 0;
         public boolean success = false;
     }
-
-//    class DownloadProgress {
-//
-//        private JFrame frame;
-//        private final JPanel panel;
-//        private JProgressBar progressBar;
-//
-//        public DownloadProgress(String fileName) {
-//            frame = new JFrame("Downloading...");
-//            frame.setResizable(false);
-//            panel = new JPanel();
-//            progressBar = new JProgressBar();
-//
-////            panel.setBackground(new Color(0, 153, 204));
-//
-////            progressBar.setForeground(new Color(255, 51, 255));
-//            progressBar.setLocation(10, 10);
-//            progressBar.setSize(280, 40);
-//            progressBar.setStringPainted(true);
-//
-//            panel.setLayout(null);
-//            panel.add(progressBar);
-//
-//            frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-//            frame.getContentPane().add(panel);
-//            frame.setSize(310, 90);
-//            frame.setVisible(true);
-//        }
-//    }
 
     public static void main(String[] args) {
         try {
