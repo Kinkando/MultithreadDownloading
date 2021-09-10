@@ -36,78 +36,72 @@ public class Server {
     private JTabbedPane tab;
 
     private void start() {
-        frame = new JFrame("Server Port " + port);
-        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        frame = new JFrame("Server Port " + port);      //Create object of JFrame and Set Title
+        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);      //Define instruction of (X) symbol to close the program
         logField = new JTextArea();
-        logField.setEditable(false);
-        logScrollPane = new JScrollPane(logField);
-        logScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-        logScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-        logScrollPane.setBounds(0, 60, screenSize.width, 250);
-        logScrollPane.setBorder(null);
+        logField.setEditable(false);    //Can't type anything in log of server (text field)
+        logScrollPane = new JScrollPane(logField);  //Scroll tab of logField
+        logScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED); //Scollbar width
+        logScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);     //Scollbar height
+        logScrollPane.setBorder(null);      //No border of scrollbar
 
-        fileList = new File(folder).listFiles();
-        DecimalFormat sizeFormat = new DecimalFormat("#,###");
-        DecimalFormat sizeFormatPoint = new DecimalFormat("#,###.##");
-        String[][] fileRow = new String[fileList.length][2];
-        String[] fileSizeFormat = { " bytes", " KB", " MB", " GB" };
+        fileList = new File(folder).listFiles();    //Push all files from server folder path to array of File
+        DecimalFormat sizeFormat = new DecimalFormat("#,###");          //Only decimal number without decimal point use in kb and bytes size
+        DecimalFormat sizeFormatPoint = new DecimalFormat("#,###.##");  //Decimal number with 2 decimal point use in GB and MB size
+        String[][] fileRow = new String[fileList.length][2];            //Data in JTable
+        String[] fileSizeFormat = { " bytes", " KB", " MB", " GB" };    //Size of file
 
-        for (int i = 0; i < fileList.length; i++) {
-            fileRow[i][0] = fileList[i].getName();
-            int j = 0;
-            double fileSize = fileList[i].length();
+        for (int i = 0; i < fileList.length; i++) {     //Loop in all files in server folder
+            fileRow[i][0] = fileList[i].getName();      //Keep file name to array of fileRow in order to display with table (Column 0)
+            int j = 0;                                  //Create to reference size of file with fileSizeFormat variable
+            double fileSize = fileList[i].length();     //Keep length of file with bytes size in fileSize variable
             for (j = 0; j < 3 && fileSize >= 1024; j++)
                 fileSize /= 1024.0;
-            fileRow[i][1] = (j > 1 ? sizeFormatPoint.format(fileSize) : sizeFormat.format(fileSize))
+            fileRow[i][1] = (j > 1 ? sizeFormatPoint.format(fileSize) : sizeFormat.format(fileSize))    //Keep length and size of file in array to display on table
                     + fileSizeFormat[j];
         }
 
         new Thread(() -> {
             ServerSocket serverSocket = null;
             try {
-                serverSocket = new ServerSocket(port);
+                serverSocket = new ServerSocket(port);      //Create Server with 3300 port for communation with Client
 
-                date = LocalDateTime.now();
-                logField.setFont(THSarabunFont);
-                logField.append(date.format(dateFormat) + " Server started time");
-                logField.setEditable(false);
+                date = LocalDateTime.now();                 //Keep time of server boot
+                logField.setFont(THSarabunFont); 
+                logField.append(date.format(dateFormat) + " Server started time");  //Print started server time
+                logField.setEditable(false);            //Can't type anything on log server
                 
-                ServerSocket uploadServer = new ServerSocket(downloadPort);
+                ServerSocket uploadServer = new ServerSocket(downloadPort);     //Create Server with 3301 port for upload-download file
                 while (true) {
-                    Socket socket = serverSocket.accept();
+                    Socket socket = serverSocket.accept();      //Accept serverSocket when Client connect to server port 3300
                     date = LocalDateTime.now();
                     logField.append("\n" + date.format(dateFormat) + " Starting Client " + (clientNo + 1)
                             + " IP Address is " + socket.getInetAddress().getHostAddress());
-                    new Thread(new ThreadClient(socket, clientNo++, uploadServer)).start();
+                    new Thread(new ThreadClient(socket, clientNo++, uploadServer)).start();     //new Thread to handle with that Client Thread
                 }
             } catch (IOException ex) {
 //                ex.printStackTrace();
             }
         }).start();
-        String column[] = { "Name", "Size" };
+        String column[] = { "Name", "Size" };       //Column name of folder server table
         fileTable = new JTable(fileRow, column) {
             @Override
-            public boolean isCellEditable(int row, int column) {
-                return false;
+            public boolean isCellEditable(int row, int column) {    
+                return false;       //Can't change anything on file in table of server folder
             }
         };
         fileTable.setFont(THSarabunFont);
-        fileTable.setShowGrid(false);
-        fileTable.setShowHorizontalLines(false);
-        fileTable.setShowVerticalLines(false);
-        setJTableColumnsWidth(fileTable, 480, 85, 15);
+        fileTable.setShowGrid(false);                   //Set no cell border in vertical and horizontal line on table
+        setJTableColumnsWidth(fileTable, 480, 85, 15);  //Set each column width (85% width of Filename column, 15% width of file length size)
         DefaultTableCellRenderer rightRenderer = new DefaultTableCellRenderer();
         rightRenderer.setHorizontalAlignment(JLabel.RIGHT);
-        fileTable.getColumnModel().getColumn(1).setCellRenderer(rightRenderer);
-        fileTable.setRowHeight(25);
-        fileTable.setSurrendersFocusOnKeystroke(true);
+        fileTable.getColumnModel().getColumn(1).setCellRenderer(rightRenderer);     //Set right alignment in file size column on table
+        fileTable.setRowHeight(25);         //set height of each row in table
         fileTable.setFocusable(false);
-        fileTable.setRowSelectionAllowed(true);
 
-        fileScrollPane = new JScrollPane(fileTable);
+        fileScrollPane = new JScrollPane(fileTable);    
         fileScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         fileScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-        fileScrollPane.setBounds(0, 60, screenSize.width, 250);
         fileScrollPane.setBorder(null);
 
         tab = new JTabbedPane();
@@ -116,17 +110,17 @@ public class Server {
         tab.add("File", fileScrollPane);
         tab.setFocusable(false);
 
-        frame.getContentPane().add(tab);
-        frame.setBounds(screenSize.width / 2 - 400, screenSize.height / 2 - 250, 800, 500);
-        frame.setMinimumSize(new Dimension(600, 300));
-        frame.setVisible(true);
+        frame.getContentPane().add(tab);        //Add tab bar to JFrame
+        frame.setBounds(screenSize.width / 2 - 400, screenSize.height / 2 - 250, 800, 500); //set Location and Size
+        frame.setMinimumSize(new Dimension(600, 300));  //Set minimum size of frame
+        frame.setVisible(true); //display frame
     }
 
     class MultiThreadUpload implements Runnable {
-        private Socket socket;
-        private int index;
-        private int start;
-        private int end;
+        private final Socket socket;
+        private final int index;
+        private final int start;
+        private final int end;
 
         MultiThreadUpload(Socket socket, int index, int start, int end) {
             this.socket = socket;
@@ -138,14 +132,17 @@ public class Server {
         @Override
         public void run() {
             try {
+                //FileInputStream  -> Convert file to byte stream for read byte data from file
+                //FileOutputStream -> Convert byte stream to file for write byte data to file
+                
                 InputStream bufferedInputStream = new BufferedInputStream(new FileInputStream(fileList[index].getAbsolutePath()));
                 DataOutputStream outputToClient = new DataOutputStream(socket.getOutputStream());
                 
                 outputToClient.writeInt(start);
                 outputToClient.writeInt(end);
 
-                byte[] buffer = new byte[1024 * 1024];
-                int read;
+                byte[] buffer = new byte[1024 * 1024];      //read byte data 1024 * 1024 KB each time
+                int read;                                   //Last location or length of byte data that readed
                 int count = 0;
                 boolean check = false;
                 bufferedInputStream.skip(start);
@@ -171,9 +168,7 @@ public class Server {
                 }
                 // e.printStackTrace();
             }
-
         }
-
     }
 
     class ThreadClient implements Runnable {
