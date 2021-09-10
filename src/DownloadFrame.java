@@ -93,9 +93,9 @@ public class DownloadFrame extends JFrame {
         if(openFolderButton.getText().equalsIgnoreCase("Open Folder")) {
             File folder = new File(directory);
             Desktop desktop = null;
-            if (Desktop.isDesktopSupported()) {
-                desktop = Desktop.getDesktop();
-            }
+            if (Desktop.isDesktopSupported()) { //Check Desktop class support on current platform
+                desktop = Desktop.getDesktop(); 
+            } //Return the Desktop instance of the current context to allow open file directory on file explorer
             try {
                 desktop.open(folder);
             } 
