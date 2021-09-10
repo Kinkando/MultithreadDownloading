@@ -144,18 +144,20 @@ public class Server {
                 byte[] buffer = new byte[1024 * 1024];      //read byte data 1024 * 1024 KB each time
                 int read;                                   //Last location or length of byte data that readed
                 int count = 0;
+                int allRound = (int) Math.ceil((end/buffer.length));
                 boolean check = false;
                 bufferedInputStream.skip(start);
-                while ((read = bufferedInputStream.read(buffer)) != -1) {
-                    if (count + read > end) {
-                        read = end - count;
-                        count += read;
-                        check = true;
-                    }
+                while ((read = bufferedInputStream.read(buffer)) != -1 && count!=allRound+1) {
+//                    if (count + read > end) {
+//                        read = end - count;
+//                        count += read;
+//                        check = true;
+//                    }
                     outputToClient.write(buffer, 0, read);
-                    if (check)
-                        break;
-                    count += read;
+                    count++;
+//                    if (check)
+//                        break;
+//                    count += read;
                 }
                 bufferedInputStream.close();
                 outputToClient.close();
