@@ -21,7 +21,6 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableColumn;
 
 public class Server {
-//    static ArrayList<GeneralFile> myFiles = new ArrayList<>();
     private File[] fileList;
     private int clientNo = 0;
     private final String folder = "C:/Users/User/Downloads/Document/Operating Systems/Server Folder";
@@ -40,7 +39,7 @@ public class Server {
 
     private void start() {
         frame = new JFrame("Server Port " + port);
-        frame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         logField = new JTextArea();
         logScrollPane = new JScrollPane(logField);
         logScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
@@ -49,15 +48,11 @@ public class Server {
         logScrollPane.setBorder(null);
 
         fileList = new File(folder).listFiles();
-//        ArrayList<File> files = new ArrayList<>();
-//        ArrayList<String> fileName = new ArrayList<>();
-//        ArrayList<byte[]> fileContentBytes = new ArrayList<>();
         DecimalFormat sizeFormat = new DecimalFormat("#,###");
         DecimalFormat sizeFormatPoint = new DecimalFormat("#,###.##");
         String[][] fileRow = new String[fileList.length][2];
         String[] fileSizeFormat = { " bytes", " KB", " MB", " GB" };
 
-//        files.addAll(Arrays.asList(fileList));
         for (int i = 0; i < fileList.length; i++) {
             fileRow[i][0] = fileList[i].getName();
             int j = 0;
@@ -77,17 +72,7 @@ public class Server {
                 logField.setFont(THSarabunFont);
                 logField.append(date.format(dateFormat) + " Server started time");
                 logField.setEditable(false);
-
-//                for (int i = 0; i < files.size(); i++) {
-//                    File file = files.get(i);
-//
-//                    fileName.add(file.getName());
-//
-//
-//                    myFiles.add(new GeneralFile(i, fileName.get(i), file.length(), getFileExtension(fileName.get(i)),
-//                            file.getAbsolutePath()));
-//                }
-                // ThreadClient.createUploadServer();
+                
                 ServerSocket uploadServer = new ServerSocket(downloadPort);
                 while (true) {
                     Socket socket = serverSocket.accept();
@@ -100,13 +85,6 @@ public class Server {
 //                ex.printStackTrace();
             }
         }).start();
-        frame.addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowClosing(WindowEvent e) {
-                // textField.append("Server is downed");
-                System.exit(0);
-            }
-        });
         String column[] = { "Name", "Size" };
         fileTable = new JTable(fileRow, column) {
             @Override
