@@ -106,7 +106,7 @@ public class Client {
                 File f = new File(filePath);
                 download = new Download();      //use for detect percentage of file downloading
                 DownloadFrame downloadFrame = new DownloadFrame(fd.getDirectory(), f.getAbsolutePath(), f.getName());
-                downloadButton.setEnabled(false);
+                downloadButton.setEnabled(false);   //Can't press download button when file download unfinish
                 new Thread(() -> {
                     while (!download.success) {
                         try {
@@ -115,7 +115,6 @@ public class Client {
                                 download.success = true;
                                 downloadFrame.progressBar.setValue(100);
                                 downloadFrame.progressBar.setString("Download Successful");
-                                downloadFrame.setTitle("Download file complete");
                                 downloadFrame.setSize(downloadFrame.getWidth(), downloadFrame.getHeight()+40);
 
                                 long finish = System.currentTimeMillis();
