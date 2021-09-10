@@ -39,7 +39,7 @@ public class Server {
         frame = new JFrame("Server Port " + port);
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         logField = new JTextArea();
-        logField.setEnabled(false);
+        logField.setEditable(false);
         logScrollPane = new JScrollPane(logField);
         logScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         logScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
