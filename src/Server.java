@@ -23,7 +23,7 @@ public class Server {
     private int clientNo = 0;
     private final String folder = "C:/Users/User/Downloads/Document/Operating Systems/Server Folder";
     private final int port = 3300;
-    private final static int downloadPort = 3301;
+    private final int downloadPort = 3301;
     private LocalDateTime date;
     private final DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
     private final Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
