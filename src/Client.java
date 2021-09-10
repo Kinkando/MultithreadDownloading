@@ -108,6 +108,7 @@ public class Client {
                 download = new Download();
                 if (fileContentLength > 0) {
                     DownloadFrame downloadFrame = new DownloadFrame(fd.getDirectory(), fd.getDirectory() + fd.getFile(), fd.getFile());
+                    downloadButton.setEnabled(false);
                     new Thread(() -> {
                         while (!download.success) {
                             try {
@@ -123,6 +124,7 @@ public class Client {
                                     long timeElapsed = finish - starttime;
                                     toServer.writeUTF("\"successful\"");
                                     toServer.writeUTF(""+TimeUnit.MILLISECONDS.toSeconds(timeElapsed));
+                                    downloadButton.setEnabled(true);
                                 } else {
                                     downloadFrame.progressBar.setValue((int) ((float) download.percent / (float) fileContentLength * 100));
                                 }
