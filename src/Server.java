@@ -134,8 +134,9 @@ public class Server {
             try {
                 //FileInputStream  -> Convert file to byte stream for read byte data from file
                 //FileOutputStream -> Convert byte stream to file for write byte data to file
+                //BufferedStream   -> Read/Write a lot of byte data at once time and keep byte data in buffer before send
                 
-                InputStream bufferedInputStream = new BufferedInputStream(new FileInputStream(fileList[index].getAbsolutePath()));
+                InputStream bufferedInputStream = new BufferedInputStream(new FileInputStream(fileList[index].getAbsolutePath())); //Lock resource from Input File
                 DataOutputStream outputToClient = new DataOutputStream(socket.getOutputStream());
                 
                 outputToClient.writeInt(start);
@@ -145,7 +146,7 @@ public class Server {
                 int read;                                   //Last location or length of byte data that readed
                 int count = 0;
                 int allRound = (int) Math.ceil((end/buffer.length));
-                boolean check = false;
+//                boolean check = false;
                 bufferedInputStream.skip(start);
                 while ((read = bufferedInputStream.read(buffer)) != -1 && count!=allRound+1) {
 //                    if (count + read > end) {
@@ -159,7 +160,7 @@ public class Server {
 //                        break;
 //                    count += read;
                 }
-                bufferedInputStream.close();
+                bufferedInputStream.close();    //Unlock resource from input file
                 outputToClient.close();
                 socket.close();
 
@@ -189,35 +190,33 @@ public class Server {
         @Override
         public void run() {
             try {
-                DataInputStream inputFromClient = new DataInputStream(socket.getInputStream());
-                DataOutputStream outputToClient = new DataOutputStream(socket.getOutputStream());
+                DataInputStream inputFromClient = new DataInputStream(socket.getInputStream());     //receive message from Client
+                DataOutputStream outputToClient = new DataOutputStream(socket.getOutputStream());   //send message to Client
 
-                outputToClient.writeInt(fileList.length);
+                outputToClient.writeInt(fileList.length);       //Send number of files to Client
 
-                PrintWriter writer = new PrintWriter(outputToClient, true);
+                PrintWriter writer = new PrintWriter(outputToClient, true);     //Create for send file name to Client
                 for(File f : fileList)
-                    writer.println(f.getName());
+                    writer.println(f.getName());          //Send file name 1 line at a time
 
                 while (true) {
                     try {
                         date = LocalDateTime.now();
 
                         String fileName = inputFromClient.readUTF();
-                        if (fileName.contains("successful")) {
+                        if (fileName.contains("\"successful\"")) {
                             logField.append("\n" + date.format(dateFormat) + " Client " + (no + 1));
                             logField.append(" Download status : " + fileName.substring(fileName.lastIndexOf(" ")+1));
                             logField.append("\n" + date.format(dateFormat) + " Client " + (no + 1));
-                            logField.append(" Take time to download : " + inputFromClient.readUTF()+" seconds ("+uploadThread+" threads)");
-                        } else {
+                            logField.append(" Take time to download : " + inputFromClient.readUTF()+" seconds ("+uploadThread+" thread"+(uploadThread==1?")":"s)"));
+                        } 
+                        else {
                             boolean found = false;
                             for (int i = 0; i < fileList.length; i++) {
                                 if (fileList[i].getName().equalsIgnoreCase(fileName)) {
                                     uploadThread = inputFromClient.readInt();
-
                                     outputToClient.writeInt((int) fileList[i].length());
-
                                     int fileLength = (int) (fileList[i].length() / uploadThread);
-                                    
                                     for (int j = 0; j < uploadThread; j++) {
                                         Socket uploadSocket = uploadServer.accept();
                                         new Thread(new MultiThreadUpload(uploadSocket, i, j * fileLength,
