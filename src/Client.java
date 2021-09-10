@@ -80,6 +80,7 @@ public class Client {
             frame.getContentPane().add(label, BorderLayout.NORTH);
             frame.getContentPane().add(tagLabel, BorderLayout.WEST);
             JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, fileComboBox, threadComboBox);
+            splitPane.setEnabled(false);
             frame.getContentPane().add(splitPane, BorderLayout.CENTER);
             frame.getContentPane().add(downloadButton, BorderLayout.EAST);
             frame.setVisible(true);
