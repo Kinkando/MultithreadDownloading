@@ -18,7 +18,6 @@ public class Client {
     private final String hostName = "localhost";
     private final int port = 3300;
     private final int downloadPort = 3301;
-
     private int downloadThread = 1;
 
     private JFrame frame;
@@ -66,11 +65,10 @@ public class Client {
             toServer = new DataOutputStream(socket.getOutputStream());
 
             BufferedReader reader = new BufferedReader(new InputStreamReader(fromServer));
-
             int fileNo = fromServer.readInt();
-
             for (int i = 0; i < fileNo; i++)
                 fileList.add(reader.readLine());
+            
             fileComboBox = new JComboBox(fileList.toArray());
             fileComboBox.setFont(THSarabunFont);
             fileComboBox.setSelectedIndex(0);
