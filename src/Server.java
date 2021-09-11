@@ -205,36 +205,23 @@ public class Server {
                             boolean found = false;
                             for (int i = 0; i < fileList.length; i++) {
                                 if (fileList[i].getName().equalsIgnoreCase(fileName)) {
-                                    boolean haveFile = fileList[i].isFile();
-                                    outputToClient.writeBoolean(haveFile);
-                                    if(haveFile) {
-                                        found = true;
-                                        boolean request = inputFromClient.readBoolean();
-                                        if(request) {
-                                            logField.append("\n" + date.format(dateFormat) + " Client " + (no + 1));
-                                            logField.append(" Request to download file : " + fileName);
-                                            uploadThread = inputFromClient.readInt();
-                                            outputToClient.writeLong(fileList[i].length());
-                                            long fileLength = (fileList[i].length() / uploadThread);
-                                            for (int j = 0; j < uploadThread; j++) {
-                                                Socket uploadSocket = uploadServer.accept();
-                                                new Thread(new MultiThreadUpload(uploadSocket, i, j * fileLength,
-                                                        j == uploadThread - 1
-                                                                ? (int) fileList[i].length() - (j * fileLength)     
-                                                                : fileLength)).start();
-                                            }   //last thread = allFileSize - (sizePerThread * (threadNumber-1))
-                                        }
-                                    }
-                                    else {
-                                        found = haveFile;
-                                    }
+                                    uploadThread = inputFromClient.readInt();
+                                    outputToClient.writeLong(fileList[i].length());
+                                    long fileLength = (fileList[i].length() / uploadThread);
+                                    for (int j = 0; j < uploadThread; j++) {
+                                        Socket uploadSocket = uploadServer.accept();
+                                        new Thread(new MultiThreadUpload(uploadSocket, i, j * fileLength,
+                                                j == uploadThread - 1
+                                                        ? (int) fileList[i].length() - (j * fileLength)     
+                                                        : fileLength)).start();
+                                    }   //last thread = allFileSize - (sizePerThread * (threadNumber-1))
+                                    found = true;
                                     break;
                                 }
                             }
-                            if (!found) {
-                                outputToClient.writeBoolean(false);
+                            if (found) {
                                 logField.append("\n" + date.format(dateFormat) + " Client " + (no + 1));
-                                logField.append(" Request file \"" + fileName+"\" not found in Server Folder");
+                                logField.append(" Request to download file : " + fileName);
                             }
                         }
                     } catch (IOException ex) {
