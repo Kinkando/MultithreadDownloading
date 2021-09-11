@@ -54,7 +54,7 @@ public class Server {
         for (int i = 0; i < fileList.length; i++) {     //Loop in all files in server folder
             fileRow[i][0] = fileList[i].getName();      //Keep file name to array of fileRow in order to display with table (Column 0)
             int j = 0;                                  //Create to reference size of file with fileSizeFormat variable
-            double fileSize = fileList[i].length();     //Keep length of file with bytes size in fileSize variable
+            long fileSize = fileList[i].length();     //Keep length of file with bytes size in fileSize variable
             for (j = 0; j < 3 && fileSize >= 1024; j++)
                 fileSize /= 1024.0;
             fileRow[i][1] = (j > 1 ? sizeFormatPoint.format(fileSize) : sizeFormat.format(fileSize))    //Keep length and size of file in array to display on table
