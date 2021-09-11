@@ -2,6 +2,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.io.*;
 import java.net.*;
+import java.text.DecimalFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import javax.swing.*;
@@ -123,7 +124,10 @@ public class Client {
                                 toServer.writeUTF(""+TimeUnit.MILLISECONDS.toSeconds(timeElapsed));
                                 downloadButton.setEnabled(true);
                             } else {
-                                downloadFrame.progressBar.setValue((int) ((float) download.percent / (float) fileContentLength * 100));
+                                DecimalFormat decimalFormat = new DecimalFormat("0.00");
+                                double percentage = (double)download.percent / (double)fileContentLength * 100;
+                                String withoutExponential = decimalFormat.format(percentage);
+                                downloadFrame.progressBar.setValue((int)Double.parseDouble(withoutExponential));
                             }
                         } catch (InterruptedException ex) {
 
@@ -179,7 +183,7 @@ public class Client {
     }
 
     class Download {
-        public int percent = 0;
+        public long percent = 0;
         public boolean success = false;
     }
 
