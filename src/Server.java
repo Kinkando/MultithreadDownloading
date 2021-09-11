@@ -215,7 +215,7 @@ public class Server {
                                             Socket uploadSocket = uploadServer.accept();
                                             new Thread(new MultiThreadUpload(uploadSocket, i, j * fileLength,
                                                     j == uploadThread - 1
-                                                            ? (int) fileList[i].length() - (j * fileLength)     
+                                                            ? fileList[i].length() - (j * fileLength)     
                                                             : fileLength)).start();
                                         }   //last thread = allFileSize - (sizePerThread * (threadNumber-1))
                                     }
