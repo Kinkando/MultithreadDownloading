@@ -64,7 +64,7 @@ public class Client {
             fromServer = new DataInputStream(socket.getInputStream());
             toServer = new DataOutputStream(socket.getOutputStream());
 
-            BufferedReader reader = new BufferedReader(new InputStreamReader(fromServer));
+            BufferedReader reader = new BufferedReader(new InputStreamReader(fromServer)); //Read character input stream only
             int fileNo = fromServer.readInt();
             for (int i = 0; i < fileNo; i++)
                 fileList.add(reader.readLine());
