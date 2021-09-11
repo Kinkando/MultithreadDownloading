@@ -98,7 +98,7 @@ public class Client {
             if (fd.getFile() != null) {
                 toServer.writeUTF(fileNameSelected);
                 toServer.writeInt(downloadThread);
-                int fileContentLength = fromServer.readInt();
+                long fileContentLength = fromServer.readLong();
                 long starttime = System.currentTimeMillis();
                 String filePath = fd.getDirectory() + fd.getFile()
                         + ((fd.getFile().lastIndexOf(fileNameExtension) == fd.getFile().length() - fileNameExtension.length())
@@ -139,7 +139,7 @@ public class Client {
                             Socket downloadSocket = new Socket("localhost", downloadPort);
                             DataInputStream fromDServer = new DataInputStream(downloadSocket.getInputStream());
                             InputStream bufferedInputStream = new BufferedInputStream(fromDServer);
-                            int start = fromDServer.readInt();
+                            long start = fromDServer.readLong();
 
                             RandomAccessFile raf = new RandomAccessFile(filePath, "rwd");  //read write synchronized
                             raf.seek(start);
