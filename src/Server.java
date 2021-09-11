@@ -143,9 +143,13 @@ public class Server {
 
                 byte[] buffer = new byte[1024 * 1024];      //read byte data 1024 * 1024 KB each time
                 int read;                                   //Last location or length of byte data that readed
-                bufferedInputStream.skip(start);
-                while ((read = bufferedInputStream.read(buffer)) != -1) {
-                    outputToClient.write(buffer, 0, read);
+                int count = 0;                              //ตัวนับจำนวนรอบที่อ่านไฟล์ไปแล้ว
+                int allRound = (int) Math.ceil((size/buffer.length));       //จำนวนรอบที่อ่านไฟล์ = (ขนาดไฟล์ทั้งหมด / ขนาดของ buffer) ปัดเลขขึ้น
+                
+                bufferedInputStream.skip(start);            //Skip ให้ตำแหน่งเริ่มต้นของไฟล์ที่ต้องการอ่าน เช่น เปลี่ยนตัวชี้ให้เริ่มต้นที่ตำแหน่ง byte ที่ 200 ของไฟล์ เป็นต้น
+                while ((read = bufferedInputStream.read(buffer)) != -1 && count!=allRound+1) {  //ถ้าอ่านไฟล์หมดแล้วจะคืนค่าเป็น -1 และจำนวนรอบที่อ่านต้อง +1 สำหรับรอบสุดท้ายที่อ่านข้อมูลได้เป็น -1
+                    outputToClient.write(buffer, 0, read);  //ส่งไฟล์ที่เป็น byte ที่เก็บใน buffer ไปหา Client โดยจะส่งตั้งแต่ข้อมูลตำแหน่งที่ 0 - ข้อมูลตำแหน่งที่อ่านได้
+                    count++;                                //เพิ่มตัวนับรอบ
                 }
                 bufferedInputStream.close();    //Unlock resource from input file
                 outputToClient.close();
