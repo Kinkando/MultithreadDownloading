@@ -125,9 +125,10 @@ public class Client {
                                 downloadButton.setEnabled(true);
                             } else {
                                 DecimalFormat decimalFormat = new DecimalFormat("0.00");
-                                double percentage = (double)download.percent / (double)fileContentLength * 100;
+                                double percentage = ((double)download.percent / (double)fileContentLength) * 100;
                                 String withoutExponential = decimalFormat.format(percentage);
                                 downloadFrame.progressBar.setValue((int)Double.parseDouble(withoutExponential));
+//                                downloadFrame.progressBar.setValue((int) ((double)download.percent / (double)fileContentLength * 100));
                             }
                         } catch (InterruptedException ex) {
 
