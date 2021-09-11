@@ -205,17 +205,21 @@ public class Server {
                             boolean found = false;
                             for (int i = 0; i < fileList.length; i++) {
                                 if (fileList[i].getName().equalsIgnoreCase(fileName)) {
-                                    uploadThread = inputFromClient.readInt();
-                                    outputToClient.writeLong(fileList[i].length());
-                                    long fileLength = (fileList[i].length() / uploadThread);
-                                    for (int j = 0; j < uploadThread; j++) {
-                                        Socket uploadSocket = uploadServer.accept();
-                                        new Thread(new MultiThreadUpload(uploadSocket, i, j * fileLength,
-                                                j == uploadThread - 1
-                                                        ? (int) fileList[i].length() - (j * fileLength)     
-                                                        : fileLength)).start();
-                                    }   //last thread = allFileSize - (sizePerThread * (threadNumber-1))
-                                    found = true;
+                                    boolean haveFile = fileList[i].isFile();
+                                    outputToClient.writeBoolean(haveFile);
+                                    if(haveFile) {
+                                        uploadThread = inputFromClient.readInt();
+                                        outputToClient.writeLong(fileList[i].length());
+                                        long fileLength = (fileList[i].length() / uploadThread);
+                                        for (int j = 0; j < uploadThread; j++) {
+                                            Socket uploadSocket = uploadServer.accept();
+                                            new Thread(new MultiThreadUpload(uploadSocket, i, j * fileLength,
+                                                    j == uploadThread - 1
+                                                            ? (int) fileList[i].length() - (j * fileLength)     
+                                                            : fileLength)).start();
+                                        }   //last thread = allFileSize - (sizePerThread * (threadNumber-1))
+                                    }
+                                    found = haveFile;
                                     break;
                                 }
                             }
