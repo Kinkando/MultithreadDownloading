@@ -147,7 +147,7 @@ public class Server {
                 long allRound = (long) Math.ceil(((double)size/buffer.length));       
                 
                 bufferedInputStream.skip(start);            
-                while ((read = bufferedInputStream.read(buffer)) != -1 && count!=allRound+1) {  
+                while ((read = bufferedInputStream.read(buffer)) != -1 && count<allRound) {  
                     outputToClient.write(buffer, 0, read);  
                     count++;                               
                 }
