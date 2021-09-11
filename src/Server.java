@@ -205,9 +205,9 @@ public class Server {
                             boolean found = false;
                             for (int i = 0; i < fileList.length; i++) {
                                 if (fileList[i].getName().equalsIgnoreCase(fileName)) {
-                                    boolean haveFile = fileList[i].isFile();
-                                    outputToClient.writeBoolean(haveFile);
-                                    if(haveFile) {
+                                    found = fileList[i].isFile();
+                                    outputToClient.writeBoolean(found);
+                                    if(found) {
                                         uploadThread = inputFromClient.readInt();
                                         outputToClient.writeLong(fileList[i].length());
                                         long fileLength = (fileList[i].length() / uploadThread);
@@ -219,7 +219,6 @@ public class Server {
                                                             : fileLength)).start();
                                         }   //last thread = allFileSize - (sizePerThread * (threadNumber-1))
                                     }
-                                    found = haveFile;
                                     break;
                                 }
                             }
