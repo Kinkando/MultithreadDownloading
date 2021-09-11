@@ -143,21 +143,9 @@ public class Server {
 
                 byte[] buffer = new byte[1024 * 1024];      //read byte data 1024 * 1024 KB each time
                 int read;                                   //Last location or length of byte data that readed
-//                int count = 0;
-//                int allRound = (int) Math.ceil((size/buffer.length));       //number of rounds = ceil(sizePerRound / bufferLength) + 1
-//                boolean check = false;
                 bufferedInputStream.skip(start);
                 while ((read = bufferedInputStream.read(buffer)) != -1) {
-//                    if (count + read > end) {
-//                        read = end - count;
-//                        count += read;
-//                        check = true;
-//                    }
                     outputToClient.write(buffer, 0, read);
-//                    count++;
-//                    if (check)
-//                        break;
-//                    count += read;
                 }
                 bufferedInputStream.close();    //Unlock resource from input file
                 outputToClient.close();
