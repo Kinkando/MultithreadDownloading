@@ -144,7 +144,7 @@ public class Client {
                             try {
                                 Socket downloadSocket = new Socket("localhost", downloadPort);
                                 DataInputStream fromDServer = new DataInputStream(downloadSocket.getInputStream());
-                                InputStream bufferedInputStream = new BufferedInputStream(fromDServer);
+                                InputStream bufferedInputStream = new BufferedInputStream(fromDServer); //Write Data in buffer of Stream before
                                 long start = fromDServer.readLong();
 
                                 RandomAccessFile raf = new RandomAccessFile(filePath, "rwd");  //read write synchronized
