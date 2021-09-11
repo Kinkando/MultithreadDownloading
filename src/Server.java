@@ -240,11 +240,6 @@ public class Server {
         }
     }
 
-    public static String getFileExtension(String fileName) {
-        int i = fileName.lastIndexOf('.');
-        return i > 0 ? fileName.substring(i + 1) : "No extension found";
-    }
-
     public static void setJTableColumnsWidth(JTable table, int tablePreferredWidth, double... percentages) {
         double total = 0;
         for (int i = 0; i < table.getColumnModel().getColumnCount(); i++)
