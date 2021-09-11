@@ -144,7 +144,7 @@ public class Server {
                 byte[] buffer = new byte[1024 * 1024];      //read byte data 1024 * 1024 KB each time
                 int read;                                   //Last location or length of byte data that readed
                 int count = 0;                              
-                int allRound = (int) Math.ceil((size/buffer.length));       
+                long allRound = (long) Math.ceil((size/buffer.length));       
                 
                 bufferedInputStream.skip(start);            
                 while ((read = bufferedInputStream.read(buffer)) != -1 && count!=allRound+1) {  
