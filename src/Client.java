@@ -98,74 +98,80 @@ public class Client {
             fd.setVisible(true);
             if (fd.getFile() != null) {
                 toServer.writeUTF(fileNameSelected);
-                toServer.writeInt(downloadThread);
-                long fileContentLength = fromServer.readLong();
-                long starttime = System.currentTimeMillis();
-                String filePath = fd.getDirectory() + fd.getFile()
-                        + ((fd.getFile().lastIndexOf(fileNameExtension) == fd.getFile().length() - fileNameExtension.length())
-                        ? "" : fileNameExtension);
-                File f = new File(filePath);
-                download = new Download();      //use for detect percentage of file downloading
-                DownloadFrame downloadFrame = new DownloadFrame(fd.getDirectory(), f.getAbsolutePath(), f.getName());
-                downloadButton.setEnabled(false);   //Can't press download button when file download unfinish
-                new Thread(() -> {
-                    while (!download.success) {
-                        try {
-                            Thread.sleep(100); //Interval 0.1 seconds to calculate (1000 milliseconds = 1 seconds)
-                            if (download.percent >= fileContentLength) {
-                                download.success = true;
-                                downloadFrame.progressBar.setValue(100);
-                                downloadFrame.progressBar.setString("Download Successful");
-                                downloadFrame.setSize(downloadFrame.getWidth(), downloadFrame.getHeight()+40);
-
-                                long finish = System.currentTimeMillis();
-                                long timeElapsed = finish - starttime;
-                                toServer.writeUTF("\"successful\"");
-                                toServer.writeUTF(""+TimeUnit.MILLISECONDS.toSeconds(timeElapsed));
-                                downloadButton.setEnabled(true);
-                            } else {
-                                DecimalFormat decimalFormat = new DecimalFormat("0.00");
-                                double percentage = ((double)download.percent / (double)fileContentLength) * 100;
-                                String withoutExponential = decimalFormat.format(percentage);
-                                downloadFrame.progressBar.setValue((int)Double.parseDouble(withoutExponential));
-                            }
-                        } catch (InterruptedException ex) {
-
-                        } catch (IOException ex) {
-
-                        }
-
-                    }
-                }).start();
-                for (int i = 0; i < downloadThread; i++) {
+                boolean haveFile = fromServer.readBoolean();
+                if(haveFile) {
+                    toServer.writeInt(downloadThread);
+                    long fileContentLength = fromServer.readLong();
+                    long starttime = System.currentTimeMillis();
+                    String filePath = fd.getDirectory() + fd.getFile()
+                            + ((fd.getFile().lastIndexOf(fileNameExtension) == fd.getFile().length() - fileNameExtension.length())
+                            ? "" : fileNameExtension);
+                    File f = new File(filePath);
+                    download = new Download();      //use for detect percentage of file downloading
+                    DownloadFrame downloadFrame = new DownloadFrame(fd.getDirectory(), f.getAbsolutePath(), f.getName());
+                    downloadButton.setEnabled(false);   //Can't press download button when file download unfinish
                     new Thread(() -> {
-                        try {
-                            Socket downloadSocket = new Socket("localhost", downloadPort);
-                            DataInputStream fromDServer = new DataInputStream(downloadSocket.getInputStream());
-                            InputStream bufferedInputStream = new BufferedInputStream(fromDServer);
-                            long start = fromDServer.readLong();
+                        while (!download.success) {
+                            try {
+                                Thread.sleep(100); //Interval 0.1 seconds to calculate (1000 milliseconds = 1 seconds)
+                                if (download.percent >= fileContentLength) {
+                                    download.success = true;
+                                    downloadFrame.progressBar.setValue(100);
+                                    downloadFrame.progressBar.setString("Download Successful");
+                                    downloadFrame.setSize(downloadFrame.getWidth(), downloadFrame.getHeight()+40);
 
-                            RandomAccessFile raf = new RandomAccessFile(filePath, "rwd");  //read write synchronized
-                            raf.seek(start);
-
-                            byte[] buffer = new byte[1024*1024];   
-                            int read = 0;
-
-                            while ((read = bufferedInputStream.read(buffer)) > -1) { 
-                                raf.write(buffer, 0, read);
-                                synchronized (Download.class) {
-                                    download.percent = download.percent + read;
+                                    long finish = System.currentTimeMillis();
+                                    long timeElapsed = finish - starttime;
+                                    toServer.writeUTF("\"successful\"");
+                                    toServer.writeUTF(""+TimeUnit.MILLISECONDS.toSeconds(timeElapsed));
+                                    downloadButton.setEnabled(true);
+                                } else {
+                                    DecimalFormat decimalFormat = new DecimalFormat("0.00");
+                                    double percentage = ((double)download.percent / (double)fileContentLength) * 100;
+                                    String withoutExponential = decimalFormat.format(percentage);
+                                    downloadFrame.progressBar.setValue((int)Double.parseDouble(withoutExponential));
                                 }
-                            }
-                            raf.close();
-                            bufferedInputStream.close();
-                            fromDServer.close();
-                            downloadSocket.close();
-                        } catch (IOException e1) {
-//                                e1.printStackTrace();
-                        }
+                            } catch (InterruptedException ex) {
 
-                    }, "Thread-" + i).start();
+                            } catch (IOException ex) {
+
+                            }
+
+                        }
+                    }).start();
+                    for (int i = 0; i < downloadThread; i++) {
+                        new Thread(() -> {
+                            try {
+                                Socket downloadSocket = new Socket("localhost", downloadPort);
+                                DataInputStream fromDServer = new DataInputStream(downloadSocket.getInputStream());
+                                InputStream bufferedInputStream = new BufferedInputStream(fromDServer);
+                                long start = fromDServer.readLong();
+
+                                RandomAccessFile raf = new RandomAccessFile(filePath, "rwd");  //read write synchronized
+                                raf.seek(start);
+
+                                byte[] buffer = new byte[1024*1024];   
+                                int read = 0;
+
+                                while ((read = bufferedInputStream.read(buffer)) > -1) { 
+                                    raf.write(buffer, 0, read);
+                                    synchronized (Download.class) {
+                                        download.percent = download.percent + read;
+                                    }
+                                }
+                                raf.close();
+                                bufferedInputStream.close();
+                                fromDServer.close();
+                                downloadSocket.close();
+                            } catch (IOException e1) {
+    //                                e1.printStackTrace();
+                            }
+
+                        }, "Thread-" + i).start();
+                    }
+                }
+                else {
+                    JOptionPane.showMessageDialog(frame, "File \""+fileNameSelected+"\" not found", "Error", JOptionPane.ERROR_MESSAGE);
                 }
             } 
             else {
