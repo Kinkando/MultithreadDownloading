@@ -182,7 +182,7 @@ public class Server {
 
                 outputToClient.writeInt(fileList.length);       //Send number of files to Client
 
-                PrintWriter writer = new PrintWriter(outputToClient, true);     //Create for send file name to Client
+                PrintWriter writer = new PrintWriter(outputToClient, true);     //Create for send file name (Only text not include byte) to Client
                 for(File f : fileList)
                     writer.println(f.getName());          //Send file name 1 line at a time
 
