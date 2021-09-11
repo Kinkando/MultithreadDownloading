@@ -119,10 +119,10 @@ public class Server {
     class MultiThreadUpload implements Runnable {
         private final Socket socket;
         private final int index;
-        private final int start;
-        private final int size;
+        private final long start;
+        private final long size;
 
-        MultiThreadUpload(Socket socket, int index, int start, int end) {
+        MultiThreadUpload(Socket socket, int index, long start, long end) {
             this.socket = socket;
             this.index = index;
             this.start = start;
@@ -139,7 +139,7 @@ public class Server {
                 InputStream bufferedInputStream = new BufferedInputStream(new FileInputStream(fileList[index].getAbsolutePath())); //Lock resource from Input File
                 DataOutputStream outputToClient = new DataOutputStream(socket.getOutputStream());
                 
-                outputToClient.writeInt(start);     //Send start index of each thread in partial of file
+                outputToClient.writeLong(start);     //Send start index of each thread in partial of file
 
                 byte[] buffer = new byte[1024 * 1024];      //read byte data 1024 * 1024 KB each time
                 int read;                                   //Last location or length of byte data that readed
@@ -202,8 +202,8 @@ public class Server {
                             for (int i = 0; i < fileList.length; i++) {
                                 if (fileList[i].getName().equalsIgnoreCase(fileName)) {
                                     uploadThread = inputFromClient.readInt();
-                                    outputToClient.writeInt((int) fileList[i].length());
-                                    int fileLength = (int) (fileList[i].length() / uploadThread);
+                                    outputToClient.writeLong(fileList[i].length());
+                                    long fileLength = (fileList[i].length() / uploadThread);
                                     for (int j = 0; j < uploadThread; j++) {
                                         Socket uploadSocket = uploadServer.accept();
                                         new Thread(new MultiThreadUpload(uploadSocket, i, j * fileLength,
