@@ -9,7 +9,6 @@ import javax.swing.*;
 
 public class Client {
 
-//    private Download download;
     private Socket socket;
     private DataOutputStream toServer = null;
     private DataInputStream fromServer = null;
@@ -145,7 +144,6 @@ public class Client {
                             + ((fd.getFile().lastIndexOf(fileNameExtension) == fd.getFile().length() - fileNameExtension.length())
                             ? "" : fileNameExtension);
                     File f = new File(filePath);
-//                    download = new Download();      //use for detect percentage of file downloading
                     DownloadFrame downloadFrame = new DownloadFrame(fd.getDirectory(), f.getAbsolutePath(), f.getName());
                     downloadButton.setEnabled(false);   //Can't press download button when file download unfinish
                     new Thread(() -> {
@@ -197,7 +195,6 @@ public class Client {
                                     raf.write(buffer, 0, read);
                                     synchronized (Client.class) {
                                         executePercentage(read);
-//                                        download.percent = download.percent + read;
                                     }
                                 }
                                 raf.close();
