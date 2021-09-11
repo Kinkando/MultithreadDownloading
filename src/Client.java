@@ -9,7 +9,7 @@ import javax.swing.*;
 
 public class Client {
 
-    private Download download;
+//    private Download download;
     private Socket socket;
     private DataOutputStream toServer = null;
     private DataInputStream fromServer = null;
@@ -20,6 +20,7 @@ public class Client {
     private final int port = 3300;
     private final int downloadPort = 3301;
     private int downloadThread = 1;
+    private long total;
 
     private JFrame frame;
     private JLabel label, tagLabel;
@@ -107,15 +108,16 @@ public class Client {
                             + ((fd.getFile().lastIndexOf(fileNameExtension) == fd.getFile().length() - fileNameExtension.length())
                             ? "" : fileNameExtension);
                     File f = new File(filePath);
-                    download = new Download();      //use for detect percentage of file downloading
+//                    download = new Download();      //use for detect percentage of file downloading
                     DownloadFrame downloadFrame = new DownloadFrame(fd.getDirectory(), f.getAbsolutePath(), f.getName());
                     downloadButton.setEnabled(false);   //Can't press download button when file download unfinish
                     new Thread(() -> {
-                        while (!download.success) {
+                        boolean success = false;
+                        while (!success) {
                             try {
                                 Thread.sleep(100); //Interval 0.1 seconds to calculate (1000 milliseconds = 1 seconds)
-                                if (download.percent >= fileContentLength) {
-                                    download.success = true;
+                                if (total >= fileContentLength) {
+                                    success = true;
                                     downloadFrame.progressBar.setValue(100);
                                     downloadFrame.progressBar.setString("Download Successful");
                                     downloadFrame.setSize(downloadFrame.getWidth(), downloadFrame.getHeight()+40);
@@ -125,9 +127,10 @@ public class Client {
                                     toServer.writeUTF("\"successful\"");
                                     toServer.writeUTF(""+TimeUnit.MILLISECONDS.toSeconds(timeElapsed));
                                     downloadButton.setEnabled(true);
+                                    total = 0;
                                 } else {
                                     DecimalFormat decimalFormat = new DecimalFormat("0.00");
-                                    double percentage = ((double)download.percent / (double)fileContentLength) * 100;
+                                    double percentage = ((double)total / (double)fileContentLength) * 100;
                                     String withoutExponential = decimalFormat.format(percentage);
                                     downloadFrame.progressBar.setValue((int)Double.parseDouble(withoutExponential));
                                 }
@@ -155,8 +158,9 @@ public class Client {
 
                                 while ((read = bufferedInputStream.read(buffer)) > -1) { 
                                     raf.write(buffer, 0, read);
-                                    synchronized (Download.class) {
-                                        download.percent = download.percent + read;
+                                    synchronized (Client.class) {
+                                        executePercentage(read);
+//                                        download.percent = download.percent + read;
                                     }
                                 }
                                 raf.close();
@@ -187,12 +191,11 @@ public class Client {
             }
         }
     }
-
-    class Download {
-        public long percent = 0;
-        public boolean success = false;
+    
+    private synchronized void executePercentage(int read) {
+        total += read;
     }
-
+    
     public static void main(String[] args) {
         try {             
             UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
