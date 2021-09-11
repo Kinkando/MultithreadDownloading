@@ -27,6 +27,7 @@ public class Client {
     private JButton downloadButton;
     private JComboBox fileComboBox;
     private JComboBox threadComboBox;
+    private JLabel titleLabel, fileLabel, threadLabel;
     
     private final Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 
@@ -37,30 +38,35 @@ public class Client {
     private void start() {
 
         frame = new JFrame("Client");
-        frame.setSize(700, 105);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setResizable(false);
-        frame.setLocation(screenSize.width/2-frame.getWidth()/2, screenSize.height/2-400);
+        titleLabel = new JLabel();
+        fileLabel = new JLabel();
+        threadLabel = new JLabel();
+        downloadButton = new JButton();
+        fileComboBox = new JComboBox();
+        threadComboBox = new JComboBox();
+                
+        frame.setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        label = new JLabel("Folder from server port " + port);
-        label.setFont(THSarabunFont);
-        label.setHorizontalAlignment(JLabel.CENTER);
-        label.setVerticalAlignment(JLabel.CENTER);
+        fileLabel.setText("File:");
+        fileLabel.setFont(THSarabunFont);
 
-        tagLabel = new JLabel("File : ");
-        tagLabel.setFont(THSarabunFont);
-
-        downloadButton = new JButton("Download");
-        downloadButton.setFocusable(false);
-        downloadButton.addActionListener(e -> {downloadButtonAction(e); });
+        titleLabel.setText("Folder from server port "+port);
+        titleLabel.setFont(THSarabunFont);
 
         String threadNum[] = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10"};
         threadComboBox = new JComboBox(threadNum);
         threadComboBox.setFont(THSarabunFont);
-        threadComboBox.setSelectedIndex(0);
-        threadComboBox.setSize(55, 55);
         threadComboBox.setFocusable(false);
 
+        threadLabel.setText("Thread:");
+        threadLabel.setFont(THSarabunFont);
+
+        downloadButton.setText("Download");
+        downloadButton.setFont(THSarabunFont);
+        downloadButton.setFocusable(false);
+        downloadButton.addActionListener(e -> {downloadButtonAction(e); });
+        
         try {
             socket = new Socket(hostName, port);
             fromServer = new DataInputStream(socket.getInputStream());
@@ -73,16 +79,47 @@ public class Client {
             
             fileComboBox = new JComboBox(fileList.toArray());
             fileComboBox.setFont(THSarabunFont);
-            fileComboBox.setSelectedIndex(0);
-            fileComboBox.setSize(150, 55);
             fileComboBox.setFocusable(false);
-            frame.getContentPane().add(threadComboBox);
-            frame.getContentPane().add(label, BorderLayout.NORTH);
-            frame.getContentPane().add(tagLabel, BorderLayout.WEST);
-            JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, fileComboBox, threadComboBox);
-            splitPane.setEnabled(false);
-            frame.getContentPane().add(splitPane, BorderLayout.CENTER);
-            frame.getContentPane().add(downloadButton, BorderLayout.EAST);
+            
+            javax.swing.GroupLayout layout = new javax.swing.GroupLayout(frame.getContentPane());
+            frame.getContentPane().setLayout(layout);
+            layout.setHorizontalGroup(
+                layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(layout.createSequentialGroup()
+                    .addGap(40, 40, 40)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
+                        .addGroup(layout.createSequentialGroup()
+                            .addComponent(threadLabel)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addComponent(threadComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(downloadButton, javax.swing.GroupLayout.PREFERRED_SIZE, 170, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(titleLabel)
+                        .addGroup(layout.createSequentialGroup()
+                            .addComponent(fileLabel)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addComponent(fileComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 540, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addContainerGap(39, Short.MAX_VALUE))
+            );
+            layout.setVerticalGroup(
+                layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(layout.createSequentialGroup()
+                    .addContainerGap()
+                    .addComponent(titleLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 46, Short.MAX_VALUE)
+                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(fileComboBox, javax.swing.GroupLayout.DEFAULT_SIZE, 39, Short.MAX_VALUE)
+                        .addComponent(fileLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGap(18, 18, 18)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(threadComboBox, javax.swing.GroupLayout.DEFAULT_SIZE, 39, Short.MAX_VALUE)
+                        .addComponent(threadLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGap(18, 18, 18)
+                    .addComponent(downloadButton, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGap(26, 26, 26))
+            );
+
+            frame.pack();
+            frame.setLocation(screenSize.width/2-frame.getWidth()/2, screenSize.height/2-frame.getHeight()/2);
             frame.setVisible(true);
         } catch (IOException ex) {
             System.exit(0);
