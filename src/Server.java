@@ -143,7 +143,7 @@ public class Server {
 
                 byte[] buffer = new byte[1024 * 1024]; 
                 int read;                                   
-                int count = 0;                              
+                long count = 0;                              
 //                long allRound = (long) Math.ceil(((double)size/buffer.length));       
                 
                 bufferedInputStream.skip(start);            
