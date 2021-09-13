@@ -144,12 +144,12 @@ public class Server {
                 byte[] buffer = new byte[1024 * 1024]; 
                 int read;                                   
                 int count = 0;                              
-                long allRound = (long) Math.ceil(((double)size/buffer.length));       
+//                long allRound = (long) Math.ceil(((double)size/buffer.length));       
                 
                 bufferedInputStream.skip(start);            
-                while ((read = bufferedInputStream.read(buffer)) != -1 && count<allRound) {  
+                while ((read = bufferedInputStream.read(buffer)) != -1 && count<size) {  
                     outputToClient.write(buffer, 0, read);  
-                    count++;                               
+                    count+=read;                               
                 }
                 bufferedInputStream.close();    
                 outputToClient.close();
